@@ -1,8 +1,8 @@
-module Update exposing (..)
+module ClubDarn.Update exposing (..)
 
-import Msg exposing (Msg(..))
-import Model exposing (Model)
-import Route
+import ClubDarn.Msg exposing (Msg(..))
+import ClubDarn.Model exposing (Model)
+import ClubDarn.Route as Route
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

@@ -1,9 +1,9 @@
-module View exposing (..)
+module ClubDarn.View exposing (..)
 
 import Html exposing (..)
-import Msg exposing (Msg)
-import Model exposing (Model)
-import Route exposing (Route)
+import ClubDarn.Msg exposing (Msg)
+import ClubDarn.Model exposing (Model)
+import ClubDarn.Route as Route exposing (Route)
 
 
 view : Model -> Html Msg

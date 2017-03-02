@@ -1,4 +1,4 @@
-module Msg exposing (..)
+module ClubDarn.Msg exposing (..)
 
 import Navigation exposing (Location)
 

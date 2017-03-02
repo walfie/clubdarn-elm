@@ -1,4 +1,4 @@
-module Route exposing (..)
+module ClubDarn.Route exposing (..)
 
 import Navigation exposing (Location)
 import UrlParser as Url exposing ((<?>), s, stringParam)

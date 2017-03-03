@@ -16,26 +16,27 @@ type Route
     | NotFound
 
 
+maybeFold : (a -> b) -> b -> Maybe a -> b
+maybeFold f default opt =
+    opt
+        |> Maybe.map f
+        |> Maybe.withDefault default
+
+
 reverse : Route -> String
 reverse route =
     "#/"
         ++ case route of
             SongSearch query ->
-                query
-                    |> Maybe.map (\q -> "?title=" ++ q)
-                    |> Maybe.withDefault ""
+                maybeFold ((++) "?title=") "" query
                     |> String.append "songs"
 
             ArtistSearch query ->
-                query
-                    |> Maybe.map (\q -> "?name=" ++ q)
-                    |> Maybe.withDefault ""
+                maybeFold ((++) "?name=") "" query
                     |> String.append "artists"
 
             SeriesSearch query ->
-                query
-                    |> Maybe.map (\q -> "?title=" ++ q)
-                    |> Maybe.withDefault ""
+                maybeFold ((++) "?title=") "" query
                     |> String.append "series"
 
             CategoryListing ->

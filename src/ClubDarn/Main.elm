@@ -12,14 +12,10 @@ import UrlParser exposing (..)
 
 init : Location -> ( Model, Cmd Msg )
 init location =
-    let
-        route =
-            Route.parseLocation location
-    in
-        { name = "world"
-        , route = route
-        }
-            ! []
+    { query = ""
+    , route = Route.parseLocation location
+    }
+        ! []
 
 
 subscriptions : Model -> Sub Msg

@@ -4,5 +4,6 @@ import Navigation exposing (Location)
 
 
 type Msg
-    = NoOp
+    = QueryInput String
+    | QuerySubmit
     | LocationChange Location

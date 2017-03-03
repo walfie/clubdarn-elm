@@ -52,6 +52,7 @@ matchers =
         [ Url.map (SongSearch Nothing) Url.top
         , Url.map SongSearch (s "songs" <?> stringParam "title")
         , Url.map ArtistSearch (s "artists" <?> stringParam "name")
+        , Url.map SeriesSearch (s "series" <?> stringParam "title")
         , Url.map CategoryListing (s "categories")
         ]
 

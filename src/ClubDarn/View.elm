@@ -1,15 +1,28 @@
 module ClubDarn.View exposing (..)
 
 import Html exposing (..)
+import Html.Events exposing (..)
 import Html.Attributes exposing (..)
-import ClubDarn.Msg exposing (Msg)
+import ClubDarn.Msg as Msgs exposing (Msg)
 import ClubDarn.Model exposing (Model)
 import ClubDarn.Route as Route exposing (Route)
 
 
 view : Model -> Html Msg
 view model =
-    div [] [ navigation, mainContent model ]
+    div []
+        [ searchBox model
+        , navigation
+        , mainContent model
+        ]
+
+
+searchBox : Model -> Html Msg
+searchBox model =
+    Html.form [ onSubmit Msgs.QuerySubmit ]
+        [ input [ onInput Msgs.QueryInput, value model.query ] []
+        , button [] [ text "Search" ]
+        ]
 
 
 navigation : Html Msg

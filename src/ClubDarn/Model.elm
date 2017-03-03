@@ -4,6 +4,6 @@ import ClubDarn.Route exposing (Route)
 
 
 type alias Model =
-    { name : String
+    { query : String
     , route : Route
     }

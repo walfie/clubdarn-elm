@@ -16,6 +16,35 @@ type Route
     | NotFound
 
 
+reverse : Route -> String
+reverse route =
+    "#/"
+        ++ case route of
+            SongSearch query ->
+                query
+                    |> Maybe.map (\q -> "?title=" ++ q)
+                    |> Maybe.withDefault ""
+                    |> String.append "songs"
+
+            ArtistSearch query ->
+                query
+                    |> Maybe.map (\q -> "?name=" ++ q)
+                    |> Maybe.withDefault ""
+                    |> String.append "artists"
+
+            SeriesSearch query ->
+                query
+                    |> Maybe.map (\q -> "?title=" ++ q)
+                    |> Maybe.withDefault ""
+                    |> String.append "series"
+
+            CategoryListing ->
+                "categories"
+
+            NotFound ->
+                ""
+
+
 matchers : Url.Parser (Route -> a) a
 matchers =
     Url.oneOf

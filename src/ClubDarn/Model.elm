@@ -20,6 +20,7 @@ type PaginatedItems
     = PaginatedSongs (Paginated Song)
     | PaginatedArtists (Paginated Artist)
     | PaginatedSeries (Paginated Series)
+    | PaginatedCategoryGroups (Paginated CategoryGroup)
 
 
 type alias Song =
@@ -70,6 +71,41 @@ seriesDecoder =
     decode Series
         |> required "title" string
         |> optional "firstKana" (nullable string) Nothing
+
+
+type alias CategoryGroup =
+    { description : Description
+    , categories : List Category
+    }
+
+
+categoryGroupDecoder : Decoder CategoryGroup
+categoryGroupDecoder =
+    decode CategoryGroup
+        |> required "description" descriptionDecoder
+        |> required "categories" (list categoryDecoder)
+
+
+type alias Description =
+    { ja : String, en : String }
+
+
+descriptionDecoder : Decoder Description
+descriptionDecoder =
+    decode Description
+        |> required "ja" string
+        |> required "en" string
+
+
+type alias Category =
+    { id : String, description : Description }
+
+
+categoryDecoder : Decoder Category
+categoryDecoder =
+    decode Category
+        |> required "id" string
+        |> required "description" descriptionDecoder
 
 
 type alias Paginated item =

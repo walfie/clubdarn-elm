@@ -33,11 +33,11 @@ type SearchType
 
 type Route
     = SearchResults SearchType (Maybe Query)
+    | SongInfo SongId
+    | CategoryListing
     | ArtistSongs ArtistId
     | CategorySongs CategoryId
     | SeriesSongs SeriesTitle
-    | CategoryListing
-    | SongInfo SongId
     | NotFound
 
 

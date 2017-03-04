@@ -75,6 +75,12 @@ update msg model =
 handleLocationChange : Model -> ( Model, Cmd Msg )
 handleLocationChange model =
     case model.route of
+        Route.CategoryListing ->
+            handleSearch model
+                "/categories"
+                Model.categoryGroupDecoder
+                Model.PaginatedCategoryGroups
+
         Route.SearchResults (Route.SongSearch) (Just query) ->
             handleSearch model
                 ("/songs/?title=" ++ query)
@@ -116,13 +122,13 @@ handleLocationChange model =
 
         Route.CategorySongs categoryId ->
             handleSearch model
-                ("/category/" ++ categoryId ++ "/songs?")
+                ("/categories/" ++ categoryId ++ "/songs?")
                 Model.songDecoder
                 Model.PaginatedSongs
 
         Route.SeriesSongs seriesTitle ->
             handleSearch model
-                ("/category/" ++ seriesCategoryId ++ "/series/" ++ seriesTitle ++ "songs?")
+                ("/categories/" ++ seriesCategoryId ++ "/series/" ++ seriesTitle ++ "songs?")
                 Model.songDecoder
                 Model.PaginatedSongs
 
@@ -134,7 +140,7 @@ handleSearch model path itemDecoder itemType =
     let
         -- TODO: serial_no
         url =
-            apiBaseUrl ++ path
+            Debug.log "test" (apiBaseUrl ++ path)
 
         ( updatedCache, cachedPage ) =
             model.responseCache |> LruCache.get url

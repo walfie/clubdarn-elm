@@ -14,6 +14,8 @@ view model =
     div []
         [ searchInput model
         , searchSelect model
+        , a [ Route.CategoryListing |> Route.reverse |> href ] [ text "Categories" ]
+        , br [] []
         , mainContent model
         ]
 
@@ -62,9 +64,12 @@ mainContent model =
             renderItems model
 
         Route.CategoryListing ->
-            text "Categories"
+            renderItems model
 
         Route.ArtistSongs artistId ->
+            renderItems model
+
+        Route.CategorySongs categoryId ->
             renderItems model
 
         _ ->
@@ -103,12 +108,16 @@ renderItems model =
         RemoteData.Success (Model.PaginatedSeries page) ->
             page.items |> List.map renderSeries |> ul []
 
+        RemoteData.Success (Model.PaginatedCategoryGroups page) ->
+            page.items |> List.map renderCategoryGroup |> ul []
+
 
 renderSong : Model.Song -> Html Msg
 renderSong song =
     li []
         [ a [ Route.SongInfo song.id |> Route.reverse |> href ]
             [ text song.title
+            , text " - "
             , text song.artist.name
             ]
         ]
@@ -132,4 +141,21 @@ renderSeries : Model.Series -> Html Msg
 renderSeries series =
     li []
         [ text series.title
+        ]
+
+
+renderCategoryGroup : Model.CategoryGroup -> Html Msg
+renderCategoryGroup categoryGroup =
+    li []
+        [ text categoryGroup.description.en
+        , ul [] (categoryGroup.categories |> List.map renderCategory)
+        ]
+
+
+renderCategory : Model.Category -> Html Msg
+renderCategory category =
+    li []
+        [ a
+            [ Route.CategorySongs category.id |> Route.reverse |> href ]
+            [ text category.description.en ]
         ]

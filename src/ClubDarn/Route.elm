@@ -37,6 +37,7 @@ type Route
     | CategorySongs CategoryId
     | SeriesSongs SeriesTitle
     | CategoryListing
+    | SongInfo SongId
     | NotFound
 
 
@@ -51,6 +52,9 @@ reverse : Route -> String
 reverse route =
     "#/"
         ++ case route of
+            SongInfo songId ->
+                "songs/" ++ toString songId
+
             SearchResults SongSearch query ->
                 maybeFold ((++) "?title=") "" query
                     |> String.append "songs"
@@ -86,6 +90,7 @@ matchers =
         , Url.map (SearchResults SongSearch) (s "songs" <?> stringParam "title")
         , Url.map (SearchResults ArtistSearch) (s "artists" <?> stringParam "name")
         , Url.map (SearchResults SeriesSearch) (s "series" <?> stringParam "title")
+        , Url.map SongInfo (s "songs" </> int)
         , Url.map ArtistSongs (s "artists" </> int </> s "songs")
         , Url.map CategorySongs (s "categories" </> string </> s "songs")
         , Url.map SeriesSongs (s "series" </> string </> s "songs")

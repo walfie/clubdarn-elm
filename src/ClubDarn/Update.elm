@@ -76,6 +76,24 @@ handleLocationChange model =
         Route.SearchResults (Route.SeriesSearch) (Just query) ->
             model ! []
 
+        Route.SongInfo songId ->
+            case model.items of
+                RemoteData.Success (Model.PaginatedSongs page) ->
+                    let
+                        newItems =
+                            page.items |> List.filter (\s -> s.id == songId)
+
+                        newResult =
+                            Model.PaginatedSongs { page | items = newItems }
+                    in
+                        { model | items = RemoteData.Success newResult } ! []
+
+                _ ->
+                    handleSearch model
+                        ("/songs/" ++ toString songId ++ "?")
+                        Model.songDecoder
+                        Model.PaginatedSongs
+
         Route.ArtistSongs artistId ->
             handleSearch model
                 ("/artists/" ++ toString artistId ++ "/songs?")

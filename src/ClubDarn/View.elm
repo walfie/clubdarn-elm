@@ -58,6 +58,9 @@ mainContent model =
         Route.SearchResults _ query ->
             renderItems model.items
 
+        Route.SongInfo songId ->
+            renderItems model.items
+
         Route.CategoryListing ->
             text "Categories"
 
@@ -85,7 +88,15 @@ renderItems webData =
                 ]
 
         RemoteData.Success (Model.PaginatedSongs page) ->
-            page.items |> List.map renderSong |> ul []
+            case page.items of
+                [] ->
+                    text "No results"
+
+                [ song ] ->
+                    renderSongInfo song
+
+                songs ->
+                    songs |> List.map renderSong |> ul []
 
         RemoteData.Success (Model.PaginatedArtists page) ->
             page.items |> List.map renderArtist |> ul []
@@ -97,8 +108,17 @@ renderItems webData =
 renderSong : Model.Song -> Html Msg
 renderSong song =
     li []
-        [ text song.title
-        , text song.artist.name
+        [ a [ Route.SongInfo song.id |> Route.reverse |> href ]
+            [ text song.title
+            , text song.artist.name
+            ]
+        ]
+
+
+renderSongInfo : Model.Song -> Html Msg
+renderSongInfo song =
+    div []
+        [ text (toString song)
         ]
 
 

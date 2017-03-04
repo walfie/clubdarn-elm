@@ -9,6 +9,7 @@ import Json.Decode as Decode
 import Http
 import RemoteData
 import Json.Decode exposing (Decoder)
+import LruCache exposing (LruCache)
 
 
 -- TODO: Put in some config
@@ -54,8 +55,21 @@ update msg model =
             in
                 model ! [ newRoute |> Route.reverse |> Navigation.newUrl ]
 
-        ApiResult result ->
-            { model | items = RemoteData.fromResult result } ! []
+        ApiResult url result ->
+            let
+                newModel =
+                    { model | items = RemoteData.fromResult result }
+            in
+                case result of
+                    Ok page ->
+                        let
+                            updatedCache =
+                                model.responseCache |> LruCache.insert url page
+                        in
+                            { newModel | responseCache = updatedCache } ! []
+
+                    _ ->
+                        newModel ! []
 
 
 handleLocationChange : Model -> ( Model, Cmd Msg )
@@ -122,10 +136,26 @@ handleSearch model path itemDecoder itemType =
         url =
             apiBaseUrl ++ path
 
-        pageDecoder =
-            Model.paginatedDecoder itemDecoder |> Decode.map itemType
-
-        request =
-            Http.get url pageDecoder
+        ( updatedCache, cachedPage ) =
+            model.responseCache |> LruCache.get url
     in
-        { model | items = RemoteData.Loading } ! [ Http.send ApiResult request ]
+        case cachedPage of
+            Just page ->
+                ( { model
+                    | items = RemoteData.Success page
+                    , responseCache = updatedCache
+                  }
+                , Cmd.none
+                )
+
+            Nothing ->
+                let
+                    pageDecoder =
+                        Model.paginatedDecoder itemDecoder |> Decode.map itemType
+
+                    request =
+                        Http.get url pageDecoder
+                in
+                    ( { model | items = RemoteData.Loading }
+                    , Http.send (ApiResult url) request
+                    )

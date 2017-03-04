@@ -9,6 +9,7 @@ import Html exposing (..)
 import Navigation exposing (Location)
 import UrlParser exposing (..)
 import RemoteData
+import LruCache exposing (LruCache)
 
 
 init : Location -> ( Model, Cmd Msg )
@@ -17,6 +18,7 @@ init location =
     , searchType = Route.SongSearch
     , items = RemoteData.NotAsked
     , route = Route.parseLocation location
+    , responseCache = LruCache.empty 50
     }
         |> update (Msg.LocationChange location)
 

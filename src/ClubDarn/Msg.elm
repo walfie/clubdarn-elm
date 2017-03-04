@@ -10,6 +10,6 @@ type Msg
     = QueryInput String
     | ChangeSearchType Route.SearchType
     | QuerySubmit
-    | ApiResult (Result Http.Error Model.PaginatedItems)
+    | ApiResult String (Result Http.Error Model.PaginatedItems)
     | LocationChange Location
     | RetryRequest

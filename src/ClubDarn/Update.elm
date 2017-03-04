@@ -14,9 +14,12 @@ import Json.Decode exposing (Decoder)
 -- TODO: Put in some config
 
 
-apiBaseUrl : String
 apiBaseUrl =
     "http://localhost:8000/api"
+
+
+seriesCategoryId =
+    "050100"
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -52,30 +55,41 @@ update msg model =
             { model | items = RemoteData.fromResult result } ! []
 
 
-
--- TODO: serial_no
-
-
 handleLocationChange : Model -> ( Model, Cmd Msg )
 handleLocationChange model =
     case model.route of
         Route.SearchResults (Route.SongSearch) (Just query) ->
-            handleSearch model ("/songs/?title=" ++ query) Model.songDecoder Model.PaginatedSongs
+            handleSearch model
+                ("/songs/?title=" ++ query)
+                Model.songDecoder
+                Model.PaginatedSongs
 
         Route.SearchResults (Route.ArtistSearch) (Just query) ->
-            handleSearch model ("/artists/?name=" ++ query) Model.artistDecoder Model.PaginatedArtists
+            handleSearch model
+                ("/artists/?name=" ++ query)
+                Model.artistDecoder
+                Model.PaginatedArtists
 
         Route.SearchResults (Route.SeriesSearch) (Just query) ->
             model ! []
 
         Route.ArtistSongs artistId ->
-            model ! []
+            handleSearch model
+                ("/artists/" ++ toString artistId ++ "/songs?")
+                Model.artistDecoder
+                Model.PaginatedArtists
 
         Route.CategorySongs categoryId ->
-            model ! []
+            handleSearch model
+                ("/category/" ++ categoryId ++ "/songs?")
+                Model.songDecoder
+                Model.PaginatedSongs
 
         Route.SeriesSongs seriesTitle ->
-            model ! []
+            handleSearch model
+                ("/category/" ++ seriesCategoryId ++ "/series/" ++ seriesTitle ++ "songs?")
+                Model.songDecoder
+                Model.PaginatedSongs
 
         _ ->
             model ! []
@@ -83,6 +97,7 @@ handleLocationChange model =
 
 handleSearch model path itemDecoder itemType =
     let
+        -- TODO: serial_no
         url =
             apiBaseUrl ++ path
 

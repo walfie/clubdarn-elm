@@ -56,24 +56,24 @@ mainContent : Model -> Html Msg
 mainContent model =
     case model.route of
         Route.SearchResults _ query ->
-            renderItems model.items
+            renderItems model
 
         Route.SongInfo songId ->
-            renderItems model.items
+            renderItems model
 
         Route.CategoryListing ->
             text "Categories"
 
         Route.ArtistSongs artistId ->
-            renderItems model.items
+            renderItems model
 
         _ ->
             text "Other"
 
 
-renderItems : WebData Model.PaginatedItems -> Html Msg
-renderItems webData =
-    case webData of
+renderItems : Model -> Html Msg
+renderItems model =
+    case model.items of
         RemoteData.NotAsked ->
             text "..."
 
@@ -88,15 +88,14 @@ renderItems webData =
                 ]
 
         RemoteData.Success (Model.PaginatedSongs page) ->
-            case page.items of
-                [] ->
-                    text "No results"
+            case model.route of
+                Route.SongInfo songId ->
+                    List.head page.items
+                        |> Maybe.map renderSongInfo
+                        |> Maybe.withDefault (div [] [ text "No song found" ])
 
-                [ song ] ->
-                    renderSongInfo song
-
-                songs ->
-                    songs |> List.map renderSong |> ul []
+                _ ->
+                    page.items |> List.map renderSong |> ul []
 
         RemoteData.Success (Model.PaginatedArtists page) ->
             page.items |> List.map renderArtist |> ul []

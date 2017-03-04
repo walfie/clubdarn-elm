@@ -18,7 +18,7 @@ init location =
     , items = RemoteData.NotAsked
     , route = Route.parseLocation location
     }
-        ! []
+        |> update (Msg.LocationChange location)
 
 
 subscriptions : Model -> Sub Msg

@@ -76,8 +76,8 @@ handleLocationChange model =
         Route.ArtistSongs artistId ->
             handleSearch model
                 ("/artists/" ++ toString artistId ++ "/songs?")
-                Model.artistDecoder
-                Model.PaginatedArtists
+                Model.songDecoder
+                Model.PaginatedSongs
 
         Route.CategorySongs categoryId ->
             handleSearch model

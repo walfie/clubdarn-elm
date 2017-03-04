@@ -61,6 +61,9 @@ mainContent model =
         Route.CategoryListing ->
             text "Categories"
 
+        Route.ArtistSongs artistId ->
+            renderItems model.items
+
         _ ->
             text "Other"
 
@@ -98,7 +101,7 @@ renderSong song =
 renderArtist : Model.Artist -> Html Msg
 renderArtist artist =
     li []
-        [ text artist.name
+        [ a [ Route.ArtistSongs artist.id |> Route.reverse |> href ] [ text artist.name ]
         ]
 
 

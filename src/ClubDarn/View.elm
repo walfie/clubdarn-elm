@@ -11,43 +11,56 @@ import ClubDarn.Route as Route exposing (Route)
 view : Model -> Html Msg
 view model =
     div []
-        [ searchBox model
-        , navigation
+        [ searchInput model
+        , searchSelect model
         , mainContent model
         ]
 
 
-searchBox : Model -> Html Msg
-searchBox model =
+searchSelect : Model -> Html Msg
+searchSelect model =
+    Html.fieldset []
+        [ radio model "Song" Route.SongSearch
+        , radio model "Artist" Route.ArtistSearch
+        , radio model "Series" Route.SeriesSearch
+        ]
+
+
+radio : Model -> String -> Route.SearchType -> Html Msg
+radio model value searchType =
+    let
+        isChecked =
+            model.searchType == searchType
+    in
+        label []
+            [ input
+                [ type_ "radio"
+                , onClick (Msgs.ChangeSearchType searchType)
+                , checked isChecked
+                ]
+                []
+            , text value
+            ]
+
+
+searchInput : Model -> Html Msg
+searchInput model =
     Html.form [ onSubmit Msgs.QuerySubmit ]
         [ input [ onInput Msgs.QueryInput, value model.query ] []
         , button [] [ text "Search" ]
         ]
 
 
-navigation : Html Msg
-navigation =
-    ul []
-        ([ ( "Songs", Route.SongSearch Nothing )
-         , ( "Artists", Route.ArtistSearch Nothing )
-         , ( "Series", Route.SeriesSearch Nothing )
-         , ( "Categories", Route.CategoryListing )
-         ]
-            |> List.map (\( name, route ) -> a [ route |> Route.reverse |> href ] [ text name ])
-            |> List.map (\link -> li [] [ link ])
-        )
-
-
 mainContent : Model -> Html Msg
 mainContent model =
     case model.route of
-        Route.SongSearch query ->
+        Route.SearchResults (Route.SongSearch) query ->
             text ("Song search " ++ (Maybe.withDefault "" query))
 
-        Route.ArtistSearch query ->
+        Route.SearchResults (Route.ArtistSearch) query ->
             text ("Artist search " ++ (Maybe.withDefault "" query))
 
-        Route.SeriesSearch query ->
+        Route.SearchResults (Route.SeriesSearch) query ->
             text ("Series search " ++ (Maybe.withDefault "" query))
 
         Route.CategoryListing ->

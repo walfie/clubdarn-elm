@@ -8,10 +8,14 @@ type alias Query =
     String
 
 
+type SearchType
+    = SongSearch
+    | ArtistSearch
+    | SeriesSearch
+
+
 type Route
-    = SongSearch (Maybe Query)
-    | ArtistSearch (Maybe Query)
-    | SeriesSearch (Maybe Query)
+    = SearchResults SearchType (Maybe Query)
     | CategoryListing
     | NotFound
 
@@ -27,15 +31,15 @@ reverse : Route -> String
 reverse route =
     "#/"
         ++ case route of
-            SongSearch query ->
+            SearchResults SongSearch query ->
                 maybeFold ((++) "?title=") "" query
                     |> String.append "songs"
 
-            ArtistSearch query ->
+            SearchResults ArtistSearch query ->
                 maybeFold ((++) "?name=") "" query
                     |> String.append "artists"
 
-            SeriesSearch query ->
+            SearchResults SeriesSearch query ->
                 maybeFold ((++) "?title=") "" query
                     |> String.append "series"
 
@@ -49,10 +53,10 @@ reverse route =
 matchers : Url.Parser (Route -> a) a
 matchers =
     Url.oneOf
-        [ Url.map (SongSearch Nothing) Url.top
-        , Url.map SongSearch (s "songs" <?> stringParam "title")
-        , Url.map ArtistSearch (s "artists" <?> stringParam "name")
-        , Url.map SeriesSearch (s "series" <?> stringParam "title")
+        [ Url.map (SearchResults SongSearch Nothing) Url.top
+        , Url.map (SearchResults SongSearch) (s "songs" <?> stringParam "title")
+        , Url.map (SearchResults ArtistSearch) (s "artists" <?> stringParam "name")
+        , Url.map (SearchResults SeriesSearch) (s "series" <?> stringParam "title")
         , Url.map CategoryListing (s "categories")
         ]
 

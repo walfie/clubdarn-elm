@@ -13,6 +13,7 @@ import UrlParser exposing (..)
 init : Location -> ( Model, Cmd Msg )
 init location =
     { query = ""
+    , searchType = Route.SongSearch
     , route = Route.parseLocation location
     }
         ! []

@@ -11,10 +11,17 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         LocationChange location ->
-            { model | route = (Route.parseLocation location), query = "" } ! []
+            let
+                route =
+                    Route.parseLocation location
+            in
+                { model | route = route, query = "" } ! []
 
         QueryInput query ->
             { model | query = query } ! []
+
+        ChangeSearchType searchType ->
+            { model | searchType = searchType } ! []
 
         QuerySubmit ->
             let
@@ -23,21 +30,8 @@ update msg model =
                         Nothing
                     else
                         (Just model.query)
+
+                newRoute =
+                    Route.SearchResults model.searchType query
             in
-                model ! [ searchUrl model.route query |> Navigation.newUrl ]
-
-
-searchUrl : Route -> Maybe String -> String
-searchUrl route query =
-    case route of
-        Route.SongSearch _ ->
-            Route.reverse (Route.SongSearch query)
-
-        Route.ArtistSearch _ ->
-            Route.reverse (Route.ArtistSearch query)
-
-        Route.SeriesSearch _ ->
-            Route.reverse (Route.SeriesSearch query)
-
-        _ ->
-            Route.reverse (Route.SongSearch query)
+                model ! [ newRoute |> Route.reverse |> Navigation.newUrl ]

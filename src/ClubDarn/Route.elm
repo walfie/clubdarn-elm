@@ -1,10 +1,27 @@
 module ClubDarn.Route exposing (..)
 
 import Navigation exposing (Location)
-import UrlParser as Url exposing ((<?>), s, stringParam)
+import UrlParser as Url exposing ((<?>), (</>), int, s, string, stringParam)
+import Http
 
 
 type alias Query =
+    String
+
+
+type alias ArtistId =
+    Int
+
+
+type alias SongId =
+    Int
+
+
+type alias CategoryId =
+    String
+
+
+type alias SeriesTitle =
     String
 
 
@@ -16,6 +33,9 @@ type SearchType
 
 type Route
     = SearchResults SearchType (Maybe Query)
+    | ArtistSongs ArtistId
+    | CategorySongs CategoryId
+    | SeriesSongs SeriesTitle
     | CategoryListing
     | NotFound
 
@@ -43,6 +63,15 @@ reverse route =
                 maybeFold ((++) "?title=") "" query
                     |> String.append "series"
 
+            ArtistSongs artistId ->
+                "artists/" ++ (toString artistId) ++ "/songs"
+
+            CategorySongs categoryId ->
+                "categories/" ++ categoryId ++ "/songs"
+
+            SeriesSongs seriesTitle ->
+                "series/" ++ (Http.encodeUri seriesTitle) ++ "/songs"
+
             CategoryListing ->
                 "categories"
 
@@ -57,6 +86,9 @@ matchers =
         , Url.map (SearchResults SongSearch) (s "songs" <?> stringParam "title")
         , Url.map (SearchResults ArtistSearch) (s "artists" <?> stringParam "name")
         , Url.map (SearchResults SeriesSearch) (s "series" <?> stringParam "title")
+        , Url.map ArtistSongs (s "artists" </> int </> s "songs")
+        , Url.map CategorySongs (s "categories" </> string </> s "songs")
+        , Url.map SeriesSongs (s "series" </> string </> s "songs")
         , Url.map CategoryListing (s "categories")
         ]
 

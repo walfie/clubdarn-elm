@@ -8,12 +8,14 @@ import ClubDarn.View exposing (view)
 import Html exposing (..)
 import Navigation exposing (Location)
 import UrlParser exposing (..)
+import RemoteData
 
 
 init : Location -> ( Model, Cmd Msg )
 init location =
     { query = ""
     , searchType = Route.SongSearch
+    , items = RemoteData.NotAsked
     , route = Route.parseLocation location
     }
         ! []

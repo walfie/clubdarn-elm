@@ -12,3 +12,4 @@ type Msg
     | QuerySubmit
     | ApiResult (Result Http.Error Model.PaginatedItems)
     | LocationChange Location
+    | RetryRequest

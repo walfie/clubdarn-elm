@@ -32,6 +32,9 @@ update msg model =
             in
                 handleLocationChange { model | route = route, query = "" }
 
+        RetryRequest ->
+            handleLocationChange model
+
         QueryInput query ->
             { model | query = query } ! []
 

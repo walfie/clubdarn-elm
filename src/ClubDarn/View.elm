@@ -78,7 +78,11 @@ renderItems webData =
             text "Loading..."
 
         RemoteData.Failure e ->
-            text ("Error: " ++ toString e)
+            div []
+                [ text ("Error: " ++ toString e)
+                , br [] []
+                , button [ onClick Msgs.RetryRequest ] [ text "Retry" ]
+                ]
 
         RemoteData.Success (Model.PaginatedSongs page) ->
             page.items |> List.map renderSong |> ul []

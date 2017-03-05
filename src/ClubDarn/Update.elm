@@ -143,7 +143,7 @@ handleSearch model path itemDecoder itemType =
     let
         -- TODO: serial_no
         url =
-            Debug.log "test" (apiBaseUrl ++ path)
+            apiBaseUrl ++ path
 
         ( updatedCache, cachedPage ) =
             model.responseCache |> LruCache.get url

@@ -9,6 +9,7 @@ import ClubDarn.Route as Route exposing (Route)
 import ClubDarn.Util as Util
 import RemoteData exposing (RemoteData, WebData)
 import Http
+import Dict exposing (Dict)
 
 
 view : Model -> Html Msg
@@ -136,19 +137,12 @@ renderSongPage route page =
                 ]
 
         Route.CategorySongs categoryId ->
-            let
-                sortField =
-                    \s -> s.dateAdded |> Maybe.withDefault ""
-
-                items =
-                    -- Sorry about the magic numbers
-                    if categoryId >= "030000" && categoryId < "040000" then
-                        -- Sort by most recent songs first
-                        page.items |> Util.reverseSortBy sortField
-                    else
-                        page.items
-            in
-                items |> List.map renderRecentSong |> ul []
+            if categoryId >= "030000" && categoryId < "040000" then
+                renderRecentSongs page
+            else
+                page.items
+                    |> List.map renderRecentSong
+                    |> ul []
 
         _ ->
             page.items |> List.map renderSong |> ul []
@@ -162,6 +156,33 @@ renderArtistSong song =
         ]
 
 
+renderRecentSongs : Model.Paginated Model.Song -> Html Msg
+renderRecentSongs page =
+    let
+        sortField =
+            \s -> s.dateAdded |> Maybe.withDefault ""
+
+        groupedByDate =
+            page.items
+                |> Util.groupBy sortField
+                |> Dict.toList
+                |> List.reverse
+    in
+        -- Wow this is a mess
+        ul []
+            (groupedByDate
+                |> List.map
+                    (\( date, songs ) ->
+                        li []
+                            [ div []
+                                [ text date
+                                , ul [] (List.map renderRecentSong songs)
+                                ]
+                            ]
+                    )
+            )
+
+
 renderRecentSong : Model.Song -> Html Msg
 renderRecentSong song =
     li []
@@ -169,8 +190,6 @@ renderRecentSong song =
             [ text song.title
             , text " - "
             , song.series |> Maybe.withDefault song.artist.name |> text
-            , text " "
-            , song.dateAdded |> Maybe.withDefault "" |> text
             ]
         ]
 

@@ -3,6 +3,7 @@ module ClubDarn.Route exposing (..)
 import Navigation exposing (Location)
 import UrlParser as Url exposing ((<?>), (</>), int, s, string, stringParam)
 import Http
+import ClubDarn.Util as Util
 
 
 type alias Query =
@@ -41,13 +42,6 @@ type Route
     | NotFound
 
 
-maybeFold : (a -> b) -> b -> Maybe a -> b
-maybeFold f default opt =
-    opt
-        |> Maybe.map f
-        |> Maybe.withDefault default
-
-
 reverse : Route -> String
 reverse route =
     "#/"
@@ -56,15 +50,15 @@ reverse route =
                 "songs/" ++ toString songId
 
             SearchResults SongSearch query ->
-                maybeFold ((++) "?title=") "" query
+                Util.maybeFold ((++) "?title=") "" query
                     |> String.append "songs"
 
             SearchResults ArtistSearch query ->
-                maybeFold ((++) "?name=") "" query
+                Util.maybeFold ((++) "?name=") "" query
                     |> String.append "artists"
 
             SearchResults SeriesSearch query ->
-                maybeFold ((++) "?title=") "" query
+                Util.maybeFold ((++) "?title=") "" query
                     |> String.append "series"
 
             ArtistSongs artistId ->

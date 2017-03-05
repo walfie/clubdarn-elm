@@ -6,6 +6,7 @@ import Html.Attributes exposing (..)
 import ClubDarn.Msg as Msgs exposing (Msg)
 import ClubDarn.Model as Model exposing (Model)
 import ClubDarn.Route as Route exposing (Route)
+import ClubDarn.Util as Util
 import RemoteData exposing (RemoteData, WebData)
 import Http
 
@@ -143,7 +144,7 @@ renderSongPage route page =
                     -- Sorry about the magic numbers
                     if categoryId >= "030000" && categoryId < "040000" then
                         -- Sort by most recent songs first
-                        page.items |> List.sortWith (reverse sortField)
+                        page.items |> Util.reverseSortBy sortField
                     else
                         page.items
             in
@@ -151,19 +152,6 @@ renderSongPage route page =
 
         _ ->
             page.items |> List.map renderSong |> ul []
-
-
-reverse : (a -> comparable) -> a -> a -> Order
-reverse f x y =
-    case compare (f x) (f y) of
-        LT ->
-            GT
-
-        EQ ->
-            EQ
-
-        GT ->
-            LT
 
 
 renderArtistSong : Model.Song -> Html Msg

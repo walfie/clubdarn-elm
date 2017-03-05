@@ -3,56 +3,78 @@ module ClubDarn.View exposing (..)
 import Html exposing (..)
 import Html.Events exposing (..)
 import Html.Attributes exposing (..)
-import ClubDarn.Msg as Msgs exposing (Msg)
+import ClubDarn.Msg as Msg exposing (Msg)
 import ClubDarn.Model as Model exposing (Model)
 import ClubDarn.Route as Route exposing (Route)
 import ClubDarn.Util as Util
 import RemoteData exposing (RemoteData, WebData)
 import Http
 import Dict exposing (Dict)
+import Material.Layout as Layout
+import Material.Toggles as Toggles
+import Material.Options as Options
 
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ searchInput model
-        , searchSelect model
-        , a [ Route.CategoryListing |> Route.reverse |> href ] [ text "Categories" ]
-        , br [] []
-        , mainContent model
+    Layout.render Msg.Mdl
+        model.mdl
+        [ Layout.fixedHeader
         ]
+        { header = header model
+        , drawer =
+            [ a
+                [ Route.CategoryListing |> Route.reverse |> href ]
+                [ text "Categories" ]
+            ]
+        , tabs = ( [], [] )
+        , main = [ mainContent model ]
+        }
+
+
+header : Model -> List (Html Msg)
+header model =
+    [ Layout.row [] [ searchInput model ]
+    , Layout.row [] [ searchSelect model ]
+    ]
 
 
 searchSelect : Model -> Html Msg
 searchSelect model =
-    Html.fieldset []
-        [ radio model "Song" Route.SongSearch
-        , radio model "Artist" Route.ArtistSearch
-        , radio model "Series" Route.SeriesSearch
-        ]
-
-
-radio : Model -> String -> Route.SearchType -> Html Msg
-radio model value searchType =
     let
-        isChecked =
-            model.searchType == searchType
-    in
-        label []
-            [ input
-                [ type_ "radio"
-                , onClick (Msgs.ChangeSearchType searchType)
-                , checked isChecked
-                ]
-                []
-            , text value
+        options =
+            [ ( 1, "Song", Route.SongSearch )
+            , ( 2, "Artist", Route.ArtistSearch )
+            , ( 3, "Series", Route.SeriesSearch )
             ]
+
+        toButton =
+            \( id, name, searchType ) ->
+                radio model "searchType" name searchType id
+
+        buttons =
+            options |> List.map toButton
+    in
+        div [] buttons
+
+
+radio : Model -> String -> String -> Route.SearchType -> Int -> Html Msg
+radio model group value searchType id =
+    Toggles.radio Msg.Mdl
+        [ id ]
+        model.mdl
+        [ Toggles.value (model.searchType == searchType)
+        , Toggles.group group
+        , Toggles.ripple
+        , Options.onToggle (Msg.ChangeSearchType searchType)
+        ]
+        [ text value ]
 
 
 searchInput : Model -> Html Msg
 searchInput model =
-    Html.form [ onSubmit Msgs.QuerySubmit ]
-        [ input [ onInput Msgs.QueryInput, value model.query ] []
+    Html.form [ onSubmit Msg.QuerySubmit ]
+        [ input [ onInput Msg.QueryInput, value model.query ] []
         , button [] [ text "Search" ]
         ]
 
@@ -95,7 +117,7 @@ renderItems model =
             div []
                 [ text ("Error: " ++ toString e)
                 , br [] []
-                , button [ onClick Msgs.RetryRequest ] [ text "Retry" ]
+                , button [ onClick Msg.RetryRequest ] [ text "Retry" ]
                 ]
 
         RemoteData.Success (Model.PaginatedSongs page) ->

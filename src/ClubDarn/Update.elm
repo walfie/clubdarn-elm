@@ -10,6 +10,7 @@ import Http
 import RemoteData
 import Json.Decode exposing (Decoder)
 import LruCache exposing (LruCache)
+import Material
 
 
 -- TODO: Put in some config
@@ -26,6 +27,9 @@ seriesCategoryId =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        Mdl m ->
+            Material.update Mdl m model
+
         LocationChange location ->
             let
                 route =

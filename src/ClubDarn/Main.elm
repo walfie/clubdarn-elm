@@ -10,22 +10,27 @@ import Navigation exposing (Location)
 import UrlParser exposing (..)
 import RemoteData
 import LruCache exposing (LruCache)
+import Material
 
 
-init : Location -> ( Model, Cmd Msg )
-init location =
+initialModel : Location -> Model
+initialModel location =
     { query = ""
     , searchType = Route.SongSearch
     , items = RemoteData.NotAsked
     , route = Route.parseLocation location
     , responseCache = LruCache.empty 50
+    , mdl = Material.model
     }
-        |> update (Msg.LocationChange location)
 
 
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.none
+init : Location -> ( Model, Cmd Msg )
+init location =
+    let
+        ( updatedModel, cmd ) =
+            initialModel location |> update (Msg.LocationChange location)
+    in
+        updatedModel ! [ cmd, Material.init Msg.Mdl ]
 
 
 main : Program Never Model Msg
@@ -34,5 +39,5 @@ main =
         { init = init
         , view = view
         , update = update
-        , subscriptions = subscriptions
+        , subscriptions = Material.subscriptions Msg.Mdl
         }

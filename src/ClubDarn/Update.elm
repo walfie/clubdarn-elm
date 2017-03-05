@@ -128,7 +128,7 @@ handleLocationChange model =
 
         Route.SeriesSongs seriesTitle ->
             handleSearch model
-                ("/categories/" ++ seriesCategoryId ++ "/series/" ++ seriesTitle ++ "songs?")
+                ("/categories/" ++ seriesCategoryId ++ "/series/" ++ seriesTitle ++ "/songs?")
                 Model.songDecoder
                 Model.PaginatedSongs
 

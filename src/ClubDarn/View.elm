@@ -72,8 +72,11 @@ mainContent model =
         Route.CategorySongs categoryId ->
             renderItems model
 
+        Route.SeriesSongs title ->
+            renderItems model
+
         _ ->
-            text "Other"
+            text "other"
 
 
 renderItems : Model -> Html Msg

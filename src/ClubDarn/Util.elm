@@ -1,6 +1,7 @@
 module ClubDarn.Util exposing (..)
 
 import Dict exposing (Dict)
+import Html exposing (Html)
 
 
 reverseSortBy : (a -> comparable) -> List a -> List a
@@ -44,3 +45,13 @@ maybeFold f default opt =
     opt
         |> Maybe.map f
         |> Maybe.withDefault default
+
+
+orEmptyString : Maybe String -> String
+orEmptyString =
+    Maybe.withDefault ""
+
+
+orEmptyText : Maybe String -> Html a
+orEmptyText maybe =
+    maybe |> Maybe.withDefault "" |> Html.text

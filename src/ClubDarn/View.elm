@@ -125,14 +125,13 @@ renderSongPage route page =
                 [ page.items
                     |> List.head
                     |> Maybe.map (\s -> s.artist.name)
-                    |> Maybe.withDefault ""
-                    |> text
+                    |> Util.orEmptyText
                 , page.items |> List.map renderArtistSong |> ul []
                 ]
 
         Route.SeriesSongs seriesTitle ->
             div []
-                [ Http.decodeUri seriesTitle |> Maybe.withDefault "" |> text
+                [ Http.decodeUri seriesTitle |> Util.orEmptyText
                 , page.items |> List.map renderSong |> ul []
                 ]
 
@@ -160,7 +159,7 @@ renderRecentSongs : Model.Paginated Model.Song -> Html Msg
 renderRecentSongs page =
     let
         sortField =
-            \s -> s.dateAdded |> Maybe.withDefault ""
+            \s -> s.dateAdded |> Util.orEmptyString
 
         groupedByDate =
             page.items

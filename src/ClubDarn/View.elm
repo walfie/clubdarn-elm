@@ -7,6 +7,7 @@ import ClubDarn.Msg as Msgs exposing (Msg)
 import ClubDarn.Model as Model exposing (Model)
 import ClubDarn.Route as Route exposing (Route)
 import RemoteData exposing (RemoteData, WebData)
+import Http
 
 
 view : Model -> Html Msg
@@ -96,14 +97,7 @@ renderItems model =
                 ]
 
         RemoteData.Success (Model.PaginatedSongs page) ->
-            case model.route of
-                Route.SongInfo songId ->
-                    List.head page.items
-                        |> Maybe.map renderSongInfo
-                        |> Maybe.withDefault (div [] [ text "No song found" ])
-
-                _ ->
-                    page.items |> List.map renderSong |> ul []
+            renderSongPage model.route page
 
         RemoteData.Success (Model.PaginatedArtists page) ->
             page.items |> List.map renderArtist |> ul []
@@ -113,6 +107,84 @@ renderItems model =
 
         RemoteData.Success (Model.PaginatedCategoryGroups page) ->
             page.items |> List.map renderCategoryGroup |> ul []
+
+
+renderSongPage : Route -> Model.Paginated Model.Song -> Html Msg
+renderSongPage route page =
+    case route of
+        Route.SongInfo songId ->
+            page.items
+                |> List.head
+                |> Maybe.map renderSongInfo
+                |> Maybe.withDefault (div [] [ text "No song found" ])
+
+        Route.ArtistSongs artistId ->
+            div []
+                [ page.items
+                    |> List.head
+                    |> Maybe.map (\s -> s.artist.name)
+                    |> Maybe.withDefault ""
+                    |> text
+                , page.items |> List.map renderArtistSong |> ul []
+                ]
+
+        Route.SeriesSongs seriesTitle ->
+            div []
+                [ Http.decodeUri seriesTitle |> Maybe.withDefault "" |> text
+                , page.items |> List.map renderSong |> ul []
+                ]
+
+        Route.CategorySongs categoryId ->
+            let
+                sortField =
+                    \s -> s.dateAdded |> Maybe.withDefault ""
+
+                items =
+                    -- Sorry about the magic numbers
+                    if categoryId >= "030000" && categoryId < "040000" then
+                        -- Sort by most recent songs first
+                        page.items |> List.sortWith (reverse sortField)
+                    else
+                        page.items
+            in
+                items |> List.map renderRecentSong |> ul []
+
+        _ ->
+            page.items |> List.map renderSong |> ul []
+
+
+reverse : (a -> comparable) -> a -> a -> Order
+reverse f x y =
+    case compare (f x) (f y) of
+        LT ->
+            GT
+
+        EQ ->
+            EQ
+
+        GT ->
+            LT
+
+
+renderArtistSong : Model.Song -> Html Msg
+renderArtistSong song =
+    li []
+        [ a [ Route.SongInfo song.id |> Route.reverse |> href ]
+            [ text song.title ]
+        ]
+
+
+renderRecentSong : Model.Song -> Html Msg
+renderRecentSong song =
+    li []
+        [ a [ Route.SongInfo song.id |> Route.reverse |> href ]
+            [ text song.title
+            , text " - "
+            , song.series |> Maybe.withDefault song.artist.name |> text
+            , text " "
+            , song.dateAdded |> Maybe.withDefault "" |> text
+            ]
+        ]
 
 
 renderSong : Model.Song -> Html Msg

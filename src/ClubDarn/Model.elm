@@ -38,6 +38,7 @@ type alias Song =
 
 songDecoder : Decoder Song
 songDecoder =
+    -- TODO: Handle case where `dateAdded` is "1970/01/01"
     decode Song
         |> required "id" int
         |> required "title" string

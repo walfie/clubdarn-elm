@@ -143,7 +143,9 @@ renderArtist artist =
 renderSeries : Model.Series -> Html Msg
 renderSeries series =
     li []
-        [ text series.title
+        [ a
+            [ Route.SeriesSongs series.title |> Route.reverse |> href ]
+            [ text series.title ]
         ]
 
 

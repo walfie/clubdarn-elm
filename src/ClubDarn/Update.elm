@@ -94,7 +94,10 @@ handleLocationChange model =
                 Model.PaginatedArtists
 
         Route.SearchResults (Route.SeriesSearch) (Just query) ->
-            model ! []
+            handleSearch model
+                ("/series/?title=" ++ query)
+                Model.seriesDecoder
+                Model.PaginatedSeries
 
         Route.SongInfo songId ->
             case model.items of

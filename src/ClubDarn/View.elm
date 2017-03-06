@@ -14,6 +14,7 @@ import Material.Layout as Layout
 import Material.Toggles as Toggles
 import Material.Options as Options
 import Material.Button as Button
+import Material.Grid as Grid
 
 
 view : Model -> Html Msg
@@ -34,15 +35,17 @@ view model =
 
 header : Model -> List (Html Msg)
 header model =
-    [ Layout.row []
+    [ Layout.row [ Options.css "height" "inherit" ]
         [ Layout.spacer
-        , searchInput model
+        , Grid.grid []
+            [ Grid.cell [ Grid.size Grid.All 6 ] [ searchInput model ]
+            , Grid.cell [ Grid.size Grid.All 6 ] (searchSelect model)
+            ]
         ]
-    , Layout.row [] [ searchSelect model ]
     ]
 
 
-searchSelect : Model -> Html Msg
+searchSelect : Model -> List (Html Msg)
 searchSelect model =
     let
         options =
@@ -70,11 +73,8 @@ searchSelect model =
                         model.mdl
                         (defaultOptions ++ extraOptions)
                         [ text name ]
-
-        buttons =
-            options |> List.map toButton
     in
-        div [] buttons
+        options |> List.map toButton
 
 
 searchInput : Model -> Html Msg

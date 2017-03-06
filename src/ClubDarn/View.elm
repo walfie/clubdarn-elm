@@ -13,14 +13,14 @@ import Dict exposing (Dict)
 import Material.Layout as Layout
 import Material.Toggles as Toggles
 import Material.Options as Options
+import Material.Button as Button
 
 
 view : Model -> Html Msg
 view model =
     Layout.render Msg.Mdl
         model.mdl
-        [ Layout.fixedHeader
-        ]
+        [ Layout.fixedHeader ]
         { header = header model
         , drawer =
             [ a
@@ -34,7 +34,10 @@ view model =
 
 header : Model -> List (Html Msg)
 header model =
-    [ Layout.row [] [ searchInput model ]
+    [ Layout.row []
+        [ Layout.spacer
+        , searchInput model
+        ]
     , Layout.row [] [ searchSelect model ]
     ]
 
@@ -50,25 +53,28 @@ searchSelect model =
 
         toButton =
             \( id, name, searchType ) ->
-                radio model "searchType" name searchType id
+                let
+                    defaultOptions =
+                        [ Button.ripple
+                        , Options.onClick (Msg.ChangeSearchType searchType)
+                        ]
+
+                    extraOptions =
+                        if (searchType == model.searchType) then
+                            [ Options.cs "mdl-color--white", Button.raised ]
+                        else
+                            [ Options.cs "mdl-color-text--white" ]
+                in
+                    Button.render Msg.Mdl
+                        [ id ]
+                        model.mdl
+                        (defaultOptions ++ extraOptions)
+                        [ text name ]
 
         buttons =
             options |> List.map toButton
     in
         div [] buttons
-
-
-radio : Model -> String -> String -> Route.SearchType -> Int -> Html Msg
-radio model group value searchType id =
-    Toggles.radio Msg.Mdl
-        [ id ]
-        model.mdl
-        [ Toggles.value (model.searchType == searchType)
-        , Toggles.group group
-        , Toggles.ripple
-        , Options.onToggle (Msg.ChangeSearchType searchType)
-        ]
-        [ text value ]
 
 
 searchInput : Model -> Html Msg

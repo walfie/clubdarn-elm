@@ -15,6 +15,10 @@ import Material.Toggles as Toggles
 import Material.Options as Options
 import Material.Button as Button
 import Material.Grid as Grid
+import Material.Icon as Icon
+import Material.Card as Card
+import Material.Elevation as Elevation
+import Material.Color as Color
 
 
 view : Model -> Html Msg
@@ -29,7 +33,12 @@ view model =
                 [ text "Categories" ]
             ]
         , tabs = ( [], [] )
-        , main = [ mainContent model ]
+        , main =
+            [ Grid.grid []
+                [ Grid.cell [ Grid.size Grid.All 1, Options.css "margin" "0" ] []
+                , Grid.cell [ Grid.size Grid.All 10 ] [ mainContent model ]
+                ]
+            ]
         }
 
 
@@ -133,10 +142,32 @@ renderItems model =
             page.items |> List.map renderArtist |> ul []
 
         RemoteData.Success (Model.PaginatedSeries page) ->
-            page.items |> List.map renderSeries |> ul []
+            page.items |> List.map renderSeries |> mainGrid
 
         RemoteData.Success (Model.PaginatedCategoryGroups page) ->
             page.items |> List.map renderCategoryGroup |> ul []
+
+
+mainGrid : List (Html Msg) -> Html Msg
+mainGrid items =
+    items
+        |> List.map List.singleton
+        |> List.map (Grid.cell [ Grid.size Grid.All 4 ])
+        |> Grid.grid []
+
+
+renderItem : Route -> List (Html Msg) -> Html Msg
+renderItem onClickRoute innerContents =
+    a
+        [ onClickRoute |> Route.reverse |> href
+        , class "darn-search-item--link"
+        ]
+        [ Options.div
+            [ Elevation.e4
+            , Options.cs "darn-search-item--container"
+            ]
+            innerContents
+        ]
 
 
 renderSongPage : Route -> Model.Paginated Model.Song -> Html Msg
@@ -159,8 +190,8 @@ renderSongPage route page =
 
         Route.SeriesSongs seriesTitle ->
             div []
-                [ Http.decodeUri seriesTitle |> Util.orEmptyText
-                , page.items |> List.map renderSong |> ul []
+                [ Http.decodeUri seriesTitle |> Util.orEmptyString |> itemsHeader
+                , page.items |> List.map renderSong |> mainGrid
                 ]
 
         Route.CategorySongs categoryId ->
@@ -172,7 +203,7 @@ renderSongPage route page =
                     |> ul []
 
         _ ->
-            page.items |> List.map renderSong |> ul []
+            page.items |> List.map renderSong |> mainGrid
 
 
 renderArtistSong : Model.Song -> Html Msg
@@ -221,13 +252,32 @@ renderRecentSong song =
         ]
 
 
+itemTitle : String -> Html Msg
+itemTitle string =
+    Options.div
+        [ Options.cs "darn-search-item__title" ]
+        [ text string ]
+
+
+itemsHeader : String -> Html Msg
+itemsHeader string =
+    Options.div
+        [ Options.cs "darn-search-header", Color.text Color.primaryDark ]
+        [ text string ]
+
+
+itemIcon : String -> Html Msg
+itemIcon icon =
+    i [ class "material-icons", class "darn-search-item__icon" ] [ text icon ]
+
+
 renderSong : Model.Song -> Html Msg
 renderSong song =
-    li []
-        [ a [ Route.SongInfo song.id |> Route.reverse |> href ]
-            [ text song.title
-            , text " - "
-            , text song.artist.name
+    renderItem (Route.SongInfo song.id)
+        [ itemTitle song.title
+        , div []
+            [ itemIcon "person"
+            , span [] [ text song.artist.name ]
             ]
         ]
 
@@ -248,11 +298,7 @@ renderArtist artist =
 
 renderSeries : Model.Series -> Html Msg
 renderSeries series =
-    li []
-        [ a
-            [ Route.SeriesSongs series.title |> Route.reverse |> href ]
-            [ text series.title ]
-        ]
+    renderItem (Route.SeriesSongs series.title) [ itemTitle series.title ]
 
 
 renderCategoryGroup : Model.CategoryGroup -> Html Msg

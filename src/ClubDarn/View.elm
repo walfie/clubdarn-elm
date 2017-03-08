@@ -34,9 +34,11 @@ view model =
             ]
         , tabs = ( [], [] )
         , main =
-            [ Grid.grid []
+            [ Grid.grid [ Options.cs "darn-main-content__container" ]
                 [ Grid.cell [ Grid.size Grid.All 1, Options.css "margin" "0" ] []
-                , Grid.cell [ Grid.size Grid.All 10 ] [ mainContent model ]
+                , Grid.cell
+                    [ Grid.size Grid.All 10, Options.cs "darn-main-content" ]
+                    [ mainContent model ]
                 ]
             ]
         }
@@ -160,11 +162,11 @@ renderItem : Route -> List (Html Msg) -> Html Msg
 renderItem onClickRoute innerContents =
     a
         [ onClickRoute |> Route.reverse |> href
-        , class "darn-search-item--link"
+        , class "darn-search-item__link"
         ]
         [ Options.div
             [ Elevation.e4
-            , Options.cs "darn-search-item--container"
+            , Options.cs "darn-search-item__container"
             ]
             innerContents
         ]
@@ -262,7 +264,7 @@ itemTitle string =
 itemsHeader : String -> Html Msg
 itemsHeader string =
     Options.div
-        [ Options.cs "darn-search-header", Color.text Color.primaryDark ]
+        [ Options.cs "darn-search-header" ]
         [ text string ]
 
 
@@ -275,10 +277,7 @@ renderSong : Model.Song -> Html Msg
 renderSong song =
     renderItem (Route.SongInfo song.id)
         [ itemTitle song.title
-        , div []
-            [ itemIcon "person"
-            , span [] [ text song.artist.name ]
-            ]
+        , div [] [ text song.artist.name ]
         ]
 
 

@@ -1,25 +1,29 @@
+.darn-main-content__container {
+  padding: 8px 0 !important;
+}
+
 .darn-search-header {
-  font-size: 30px;
-  padding: 10px;
+  font-size: 24px;
+  padding-left: 10px;
 }
 
-.darn-search-item--link {
+.darn-search-item__link {
   text-decoration: none;
-  color: #666;
+  color: #444;
 }
 
-.darn-search-item--container {
-  padding: 20px;
+.darn-search-item__container {
+  padding: 12px;
 }
 
 .darn-search-item__title {
-  font-size: 24px;
+  font-size: 1.2em;
   color: #000;
-  padding-bottom: 0.5em;
+  padding-bottom: 3px;
 }
 
 .darn-search-item__icon {
   vertical-align: middle;
-  font-size: 1.5em !important;
+  font-size: 1em !important;
   padding-right: 5px;
 }

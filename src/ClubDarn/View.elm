@@ -141,7 +141,7 @@ renderItems model =
             renderSongPage model.route page
 
         RemoteData.Success (Model.PaginatedArtists page) ->
-            page.items |> List.map renderArtist |> ul []
+            page.items |> List.map renderArtist |> mainGrid
 
         RemoteData.Success (Model.PaginatedSeries page) ->
             page.items |> List.map renderSeries |> mainGrid
@@ -254,10 +254,25 @@ renderRecentSong song =
         ]
 
 
-itemTitle : String -> Html Msg
-itemTitle string =
+itemTitle : Bool -> String -> Html Msg
+itemTitle isLarge string =
+    let
+        suffix =
+            if isLarge then
+                "--large"
+            else
+                ""
+
+        class =
+            "darn-search-item__title" ++ suffix
+    in
+        Options.div [ Options.cs class ] [ text string ]
+
+
+itemSubtitle : String -> Html Msg
+itemSubtitle string =
     Options.div
-        [ Options.cs "darn-search-item__title" ]
+        [ Options.cs "darn-search-item__subtitle" ]
         [ text string ]
 
 
@@ -276,8 +291,8 @@ itemIcon icon =
 renderSong : Model.Song -> Html Msg
 renderSong song =
     renderItem (Route.SongInfo song.id)
-        [ itemTitle song.title
-        , div [] [ text song.artist.name ]
+        [ itemTitle False song.title
+        , itemSubtitle song.artist.name
         ]
 
 
@@ -290,14 +305,12 @@ renderSongInfo song =
 
 renderArtist : Model.Artist -> Html Msg
 renderArtist artist =
-    li []
-        [ a [ Route.ArtistSongs artist.id |> Route.reverse |> href ] [ text artist.name ]
-        ]
+    renderItem (Route.ArtistSongs artist.id) [ itemTitle True artist.name ]
 
 
 renderSeries : Model.Series -> Html Msg
 renderSeries series =
-    renderItem (Route.SeriesSongs series.title) [ itemTitle series.title ]
+    renderItem (Route.SeriesSongs series.title) [ itemTitle True series.title ]
 
 
 renderCategoryGroup : Model.CategoryGroup -> Html Msg

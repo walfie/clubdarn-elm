@@ -196,8 +196,9 @@ renderSongPage route page =
                 [ page.items
                     |> List.head
                     |> Maybe.map (\s -> s.artist.name)
-                    |> Util.orEmptyText
-                , page.items |> List.map renderArtistSong |> ul []
+                    |> Util.orEmptyString
+                    |> itemsHeader
+                , page.items |> List.map renderArtistSong |> mainGrid
                 ]
 
         Route.SeriesSongs seriesTitle ->
@@ -220,10 +221,7 @@ renderSongPage route page =
 
 renderArtistSong : Model.Song -> Html Msg
 renderArtistSong song =
-    li []
-        [ a [ Route.SongInfo song.id |> Route.reverse |> href ]
-            [ text song.title ]
-        ]
+    renderItem (Route.SongInfo song.id) [ itemTitle True song.title ]
 
 
 renderRecentSongs : Model.Paginated Model.Song -> Html Msg

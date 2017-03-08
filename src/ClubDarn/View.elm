@@ -14,11 +14,13 @@ import Material.Layout as Layout
 import Material.Toggles as Toggles
 import Material.Options as Options
 import Material.Button as Button
+import Material.Spinner as Spinner
 import Material.Grid as Grid
 import Material.Icon as Icon
 import Material.Card as Card
 import Material.Elevation as Elevation
 import Material.Color as Color
+import Material.Typography as Typography
 
 
 view : Model -> Html Msg
@@ -128,13 +130,21 @@ renderItems model =
             text "..."
 
         RemoteData.Loading ->
-            text "Loading..."
+            Options.div
+                [ Options.cs "darn-loader" ]
+                [ Spinner.spinner [ Spinner.active True, Options.cs "darn-loader__spinner" ]
+                , Options.div [ Options.cs "darn-loader__text" ] [ text "Loading..." ]
+                ]
 
         RemoteData.Failure e ->
-            div []
-                [ text ("Error: " ++ toString e)
-                , br [] []
-                , button [ onClick Msg.RetryRequest ] [ text "Retry" ]
+            Options.div
+                [ Options.cs "darn-loader" ]
+                [ Options.div [] [ text ("Error: " ++ toString e) ]
+                , Button.render Msg.Mdl
+                    [ 0 ]
+                    model.mdl
+                    [ Button.ripple, Button.raised, Options.onClick Msg.RetryRequest ]
+                    [ text "Retry" ]
                 ]
 
         RemoteData.Success (Model.PaginatedSongs page) ->

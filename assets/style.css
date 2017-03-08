@@ -1,3 +1,16 @@
+.darn-loader {
+  text-align: center;
+  margin-top: 200px;
+}
+
+.darn-loader__spinner {
+  margin-left: -16px;
+}
+
+.darn-loader__text {
+  margin-top: 8px;
+}
+
 .darn-main-content__container {
   padding: 8px 0 !important;
 }

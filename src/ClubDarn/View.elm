@@ -165,7 +165,7 @@ mainGrid items =
     items
         |> List.map List.singleton
         |> List.map (Grid.cell [ Grid.size Grid.All 4 ])
-        |> Grid.grid []
+        |> Grid.grid [ Options.cs "darn-main-content__grid" ]
 
 
 renderItem : Route -> List (Html Msg) -> Html Msg
@@ -209,11 +209,9 @@ renderSongPage route page =
 
         Route.CategorySongs categoryId ->
             if categoryId >= "030000" && categoryId < "040000" then
-                renderRecentSongs page
+                div [] (renderRecentSongs page)
             else
-                page.items
-                    |> List.map renderRecentSong
-                    |> ul []
+                page.items |> List.map renderCategorySong |> mainGrid
 
         _ ->
             page.items |> List.map renderSong |> mainGrid
@@ -224,7 +222,7 @@ renderArtistSong song =
     renderItem (Route.SongInfo song.id) [ itemTitle True song.title ]
 
 
-renderRecentSongs : Model.Paginated Model.Song -> Html Msg
+renderRecentSongs : Model.Paginated Model.Song -> List (Html Msg)
 renderRecentSongs page =
     let
         sortField =
@@ -235,30 +233,21 @@ renderRecentSongs page =
                 |> Util.groupBy sortField
                 |> Dict.toList
                 |> List.reverse
+
+        groupToHtml =
+            \( date, songs ) ->
+                [ itemsHeader date
+                , songs |> List.map renderCategorySong |> mainGrid
+                ]
     in
-        -- Wow this is a mess
-        ul []
-            (groupedByDate
-                |> List.map
-                    (\( date, songs ) ->
-                        li []
-                            [ div []
-                                [ text date
-                                , ul [] (List.map renderRecentSong songs)
-                                ]
-                            ]
-                    )
-            )
+        List.concatMap groupToHtml groupedByDate
 
 
-renderRecentSong : Model.Song -> Html Msg
-renderRecentSong song =
-    li []
-        [ a [ Route.SongInfo song.id |> Route.reverse |> href ]
-            [ text song.title
-            , text " - "
-            , song.series |> Maybe.withDefault song.artist.name |> text
-            ]
+renderCategorySong : Model.Song -> Html Msg
+renderCategorySong song =
+    renderItem (Route.SongInfo song.id)
+        [ itemTitle False song.title
+        , song.series |> Maybe.withDefault song.artist.name |> itemSubtitle
         ]
 
 

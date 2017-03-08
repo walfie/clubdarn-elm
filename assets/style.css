@@ -15,6 +15,10 @@
   padding: 8px 0 !important;
 }
 
+.darn-main-content__grid {
+  padding-bottom: 16px !important;
+}
+
 .darn-search-header {
   font-size: 24px;
   padding-left: 10px;

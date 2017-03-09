@@ -10,18 +10,19 @@ import ClubDarn.Util as Util
 import RemoteData exposing (RemoteData, WebData)
 import Http
 import Dict exposing (Dict)
-import Material.Layout as Layout
-import Material.Toggles as Toggles
-import Material.Options as Options
 import Material.Button as Button
-import Material.Spinner as Spinner
+import Material.Card as Card
+import Material.Color as Color
+import Material.Elevation as Elevation
 import Material.Grid as Grid
 import Material.Icon as Icon
-import Material.Card as Card
-import Material.Elevation as Elevation
-import Material.Color as Color
-import Material.Typography as Typography
+import Material.Layout as Layout
+import Material.Options as Options
+import Material.Spinner as Spinner
 import Material.Tabs as Tabs
+import Material.Textfield as Textfield
+import Material.Toggles as Toggles
+import Material.Typography as Typography
 
 
 view : Model -> Html Msg
@@ -50,12 +51,10 @@ view model =
         }
 
 
-renderMainSearch : Model -> Html Msg
-renderMainSearch model =
-    div []
-        [ searchInput model
-        , div [] (searchSelect model)
-        ]
+renderSearchBox : Model -> Html Msg
+renderSearchBox model =
+    div [ class "darn-search-box" ]
+        [ searchInput model ]
 
 
 searchSelect : Model -> List (Html Msg)
@@ -67,35 +66,42 @@ searchSelect model =
             , ( 3, "Series", Route.SeriesSearch )
             ]
 
-        toButton =
+        toRadio =
             \( id, name, searchType ) ->
-                let
-                    defaultOptions =
-                        [ Button.ripple
-                        , Button.raised
-                        , Options.onClick (Msg.ChangeSearchType searchType)
-                        ]
-
-                    extraOptions =
-                        if (searchType == model.searchType) then
-                            [ Button.colored ]
-                        else
-                            []
-                in
-                    Button.render Msg.Mdl
-                        [ id ]
-                        model.mdl
-                        (defaultOptions ++ extraOptions)
-                        [ text name ]
+                Toggles.radio Msg.Mdl
+                    [ id ]
+                    model.mdl
+                    [ Toggles.ripple
+                    , Toggles.group "searchSelect"
+                    , Toggles.value (searchType == model.searchType)
+                    , Options.onToggle (Msg.ChangeSearchType searchType)
+                    , Options.cs "darn-search-box__search-type"
+                    ]
+                    [ text name ]
     in
-        options |> List.map toButton
+        options |> List.map toRadio
 
 
 searchInput : Model -> Html Msg
 searchInput model =
-    Html.form [ onSubmit Msg.QuerySubmit ]
-        [ input [ onInput Msg.QueryInput, value model.query ] []
-        , button [] [ text "Search" ]
+    Html.form [ onSubmit Msg.QuerySubmit, class "darn-search-box__form" ]
+        [ Textfield.render Msg.Mdl
+            [ 0 ]
+            model.mdl
+            [ Textfield.label "Query"
+            , Textfield.value model.query
+            , Options.onInput Msg.QueryInput
+            ]
+            []
+        , Button.render Msg.Mdl
+            [ 0 ]
+            model.mdl
+            [ Button.minifab, Button.colored, Button.ripple ]
+            [ Icon.i "search" ]
+        , searchSelect model
+            |> List.map List.singleton
+            |> List.map (div [ class "flex-container__item" ])
+            |> div [ class "flex-container" ]
         ]
 
 
@@ -103,7 +109,7 @@ mainContent : Model -> Html Msg
 mainContent model =
     case model.route of
         Route.MainSearch ->
-            renderMainSearch model
+            renderSearchBox model
 
         Route.SearchResults _ query ->
             renderItems model

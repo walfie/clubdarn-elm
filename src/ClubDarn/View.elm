@@ -312,16 +312,15 @@ renderSeries series =
 
 renderCategoryGroup : Model.CategoryGroup -> Html Msg
 renderCategoryGroup categoryGroup =
-    li []
-        [ text categoryGroup.description.en
-        , ul [] (categoryGroup.categories |> List.map renderCategory)
+    div []
+        [ itemsHeader categoryGroup.description.en
+        , categoryGroup.categories |> List.map renderCategory |> mainGrid
         ]
 
 
 renderCategory : Model.Category -> Html Msg
 renderCategory category =
-    li []
-        [ a
-            [ Route.CategorySongs category.id |> Route.reverse |> href ]
-            [ text category.description.en ]
+    renderItem (Route.CategorySongs category.id)
+        [ itemTitle False category.description.en
+        , itemSubtitle category.description.ja
         ]

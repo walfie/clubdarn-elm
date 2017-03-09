@@ -14,4 +14,5 @@ type Msg
     | ApiResult String (Result Http.Error Model.PaginatedItems)
     | LocationChange Location
     | RetryRequest
+    | SelectTab Int
     | Mdl (Material.Msg Msg)

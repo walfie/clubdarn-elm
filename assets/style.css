@@ -11,6 +11,10 @@
   margin-top: 8px;
 }
 
+.darn-tab-icon {
+  vertical-align: middle;
+}
+
 .darn-main-content__container {
   padding: 8px 0 !important;
 }

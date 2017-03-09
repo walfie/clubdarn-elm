@@ -33,7 +33,8 @@ type SearchType
 
 
 type Route
-    = SearchResults SearchType (Maybe Query)
+    = MainSearch
+    | SearchResults SearchType (Maybe Query)
     | SongInfo SongId
     | CategoryListing
     | ArtistSongs ArtistId
@@ -46,6 +47,9 @@ reverse : Route -> String
 reverse route =
     "#/"
         ++ case route of
+            MainSearch ->
+                ""
+
             SongInfo songId ->
                 "songs/" ++ toString songId
 
@@ -77,10 +81,24 @@ reverse route =
                 ""
 
 
+activeTab : Route -> Int
+activeTab route =
+    case route of
+        MainSearch ->
+            0
+
+        CategoryListing ->
+            1
+
+        _ ->
+            0
+
+
 matchers : Url.Parser (Route -> a) a
 matchers =
     Url.oneOf
-        [ Url.map (SearchResults SongSearch Nothing) Url.top
+        [ Url.map MainSearch Url.top
+        , Url.map MainSearch (s "")
         , Url.map (SearchResults SongSearch) (s "songs" <?> stringParam "title")
         , Url.map (SearchResults ArtistSearch) (s "artists" <?> stringParam "name")
         , Url.map (SearchResults SeriesSearch) (s "series" <?> stringParam "title")

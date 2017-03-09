@@ -30,12 +30,23 @@ update msg model =
         Mdl m ->
             Material.update Mdl m model
 
+        SelectTab tabNumber ->
+            case tabNumber of
+                0 ->
+                    model ! [ Route.reverse Route.MainSearch |> Navigation.newUrl ]
+
+                1 ->
+                    model ! [ Route.reverse Route.CategoryListing |> Navigation.newUrl ]
+
+                _ ->
+                    model ! []
+
         LocationChange location ->
             let
                 route =
                     Route.parseLocation location
             in
-                handleLocationChange { model | route = route, query = "" }
+                handleLocationChange { model | route = route }
 
         RetryRequest ->
             handleLocationChange model

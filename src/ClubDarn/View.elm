@@ -21,20 +21,24 @@ import Material.Card as Card
 import Material.Elevation as Elevation
 import Material.Color as Color
 import Material.Typography as Typography
+import Material.Tabs as Tabs
 
 
 view : Model -> Html Msg
 view model =
     Layout.render Msg.Mdl
         model.mdl
-        [ Layout.fixedHeader ]
-        { header = header model
-        , drawer =
-            [ a
-                [ Route.CategoryListing |> Route.reverse |> href ]
-                [ text "Categories" ]
-            ]
-        , tabs = ( [], [] )
+        [ Layout.fixedHeader
+        , Layout.fixedTabs
+        , Layout.onSelectTab Msg.SelectTab
+        , Layout.selectedTab (Route.activeTab model.route)
+        ]
+        { header = []
+        , drawer = []
+        , tabs =
+            ( List.map (flip Icon.view [ Options.cs "darn-tab-icon" ]) [ "search", "list" ]
+            , []
+            )
         , main =
             [ Grid.grid [ Options.cs "darn-main-content__container" ]
                 [ Grid.cell [ Grid.size Grid.All 1, Options.css "margin" "0" ] []
@@ -46,16 +50,12 @@ view model =
         }
 
 
-header : Model -> List (Html Msg)
-header model =
-    [ Layout.row [ Options.css "height" "inherit" ]
-        [ Layout.spacer
-        , Grid.grid []
-            [ Grid.cell [ Grid.size Grid.All 6 ] [ searchInput model ]
-            , Grid.cell [ Grid.size Grid.All 6 ] (searchSelect model)
-            ]
+renderMainSearch : Model -> Html Msg
+renderMainSearch model =
+    div []
+        [ searchInput model
+        , div [] (searchSelect model)
         ]
-    ]
 
 
 searchSelect : Model -> List (Html Msg)
@@ -72,14 +72,15 @@ searchSelect model =
                 let
                     defaultOptions =
                         [ Button.ripple
+                        , Button.raised
                         , Options.onClick (Msg.ChangeSearchType searchType)
                         ]
 
                     extraOptions =
                         if (searchType == model.searchType) then
-                            [ Options.cs "mdl-color--white", Button.raised ]
+                            [ Button.colored ]
                         else
-                            [ Options.cs "mdl-color-text--white" ]
+                            []
                 in
                     Button.render Msg.Mdl
                         [ id ]
@@ -101,6 +102,9 @@ searchInput model =
 mainContent : Model -> Html Msg
 mainContent model =
     case model.route of
+        Route.MainSearch ->
+            renderMainSearch model
+
         Route.SearchResults _ query ->
             renderItems model
 
@@ -157,7 +161,7 @@ renderItems model =
             page.items |> List.map renderSeries |> mainGrid
 
         RemoteData.Success (Model.PaginatedCategoryGroups page) ->
-            page.items |> List.map renderCategoryGroup |> ul []
+            page.items |> List.map renderCategoryGroup |> div []
 
 
 mainGrid : List (Html Msg) -> Html Msg

@@ -2,16 +2,16 @@
   min-height: 0 !important;
 }
 
-.darn-loader {
+.darn-center {
   text-align: center;
   margin-top: 200px;
 }
 
-.darn-loader__spinner {
+.darn-center__spinner {
   margin-left: -16px;
 }
 
-.darn-loader__text {
+.darn-center__text {
   margin-top: 8px;
 }
 

@@ -91,7 +91,7 @@ activeTab route =
             1
 
         _ ->
-            0
+            -1
 
 
 matchers : Url.Parser (Route -> a) a

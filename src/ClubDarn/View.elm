@@ -121,47 +121,35 @@ searchBox model =
 mainContent : Model -> Html Msg
 mainContent model =
     case model.route of
-        Route.MainSearch ->
-            renderSearchBox model
-
-        Route.SearchResults _ query ->
-            renderItems model
-
-        Route.SongInfo songId ->
-            renderItems model
-
         Route.CategoryListing ->
             renderItems model
 
-        Route.ArtistSongs artistId ->
+        Route.CategorySongs _ ->
             renderItems model
 
-        Route.CategorySongs categoryId ->
-            renderItems model
-
-        Route.SeriesSongs title ->
-            renderItems model
+        Route.MainSearch ->
+            renderSearchBox model
 
         _ ->
-            text "other"
+            div [] [ renderSearchBox model, renderItems model ]
 
 
 renderItems : Model -> Html Msg
 renderItems model =
     case model.items of
         RemoteData.NotAsked ->
-            text "..."
+            text ""
 
         RemoteData.Loading ->
             Options.div
-                [ Options.cs "darn-loader" ]
-                [ Spinner.spinner [ Spinner.active True, Options.cs "darn-loader__spinner" ]
-                , Options.div [ Options.cs "darn-loader__text" ] [ text "Loading..." ]
+                [ Options.cs "darn-center" ]
+                [ Spinner.spinner [ Spinner.active True, Options.cs "darn-centerspinner" ]
+                , Options.div [ Options.cs "darn-centertext" ] [ text "Loading..." ]
                 ]
 
         RemoteData.Failure e ->
             Options.div
-                [ Options.cs "darn-loader" ]
+                [ Options.cs "darn-center" ]
                 [ Options.div [] [ text ("Error: " ++ toString e) ]
                 , Button.render Msg.Mdl
                     [ 0 ]
@@ -185,10 +173,17 @@ renderItems model =
 
 mainGrid : List (Html Msg) -> Html Msg
 mainGrid items =
-    items
-        |> List.map List.singleton
-        |> List.map (Grid.cell [ Grid.size Grid.All 4 ])
-        |> Grid.grid [ Options.cs "darn-main-content__grid" ]
+    if List.isEmpty items then
+        div [ class "darn-center" ]
+            [ Icon.view "sentiment_very_dissatisfied"
+                [ Icon.size48, Color.color Color.Grey Color.S500 |> Color.text ]
+            , div [] [ text "Nothing found" ]
+            ]
+    else
+        items
+            |> List.map List.singleton
+            |> List.map (Grid.cell [ Grid.size Grid.All 4 ])
+            |> Grid.grid [ Options.cs "darn-main-content__grid" ]
 
 
 renderItem : Route -> List (Html Msg) -> Html Msg
@@ -231,6 +226,7 @@ renderSongPage route page =
                 ]
 
         Route.CategorySongs categoryId ->
+            -- Sorry about the hardcoded values
             if categoryId >= "030000" && categoryId < "040000" then
                 div [] (renderRecentSongs page)
             else

@@ -37,7 +37,7 @@ view model =
         { header = []
         , drawer = []
         , tabs =
-            ( List.map (flip Icon.view [ Options.cs "darn-tab-icon" ]) [ "search", "list" ]
+            ( List.map (flip Icon.view [ Options.cs "darn-tab-icon" ]) [ "search", "format_list_numbered" ]
             , []
             )
         , main =
@@ -54,7 +54,7 @@ view model =
 renderSearchBox : Model -> Html Msg
 renderSearchBox model =
     div [ class "darn-search-box" ]
-        [ searchInput model ]
+        [ searchBox model ]
 
 
 searchSelect : Model -> List (Html Msg)
@@ -84,24 +84,37 @@ searchSelect model =
 
 searchInput : Model -> Html Msg
 searchInput model =
+    Textfield.render Msg.Mdl
+        [ 0 ]
+        model.mdl
+        [ Textfield.label "Search"
+        , Textfield.value model.query
+        , Options.onInput Msg.QueryInput
+        , Options.cs "darn-search-box__input"
+        ]
+        []
+
+
+searchBox : Model -> Html Msg
+searchBox model =
     Html.form [ onSubmit Msg.QuerySubmit, class "darn-search-box__form" ]
-        [ Textfield.render Msg.Mdl
-            [ 0 ]
-            model.mdl
-            [ Textfield.label "Query"
-            , Textfield.value model.query
-            , Options.onInput Msg.QueryInput
+        [ div [ class "flex-container flex-container--center" ]
+            [ searchInput model
+            , Button.render Msg.Mdl
+                [ 0 ]
+                model.mdl
+                [ Button.minifab
+                , Button.ripple
+                , Button.colored
+                , Options.cs "flex-container__item"
+                ]
+                [ Icon.i "search" ]
             ]
-            []
-        , Button.render Msg.Mdl
-            [ 0 ]
-            model.mdl
-            [ Button.minifab, Button.colored, Button.ripple ]
-            [ Icon.i "search" ]
         , searchSelect model
             |> List.map List.singleton
             |> List.map (div [ class "flex-container__item" ])
             |> div [ class "flex-container" ]
+        , hr [] []
         ]
 
 

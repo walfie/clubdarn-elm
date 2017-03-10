@@ -1,3 +1,7 @@
+.mdl-layout__header {
+  min-height: 0 !important;
+}
+
 .darn-loader {
   text-align: center;
   margin-top: 200px;
@@ -25,15 +29,27 @@
 
 .darn-search-box {
   text-align: center;
+  margin-top: -10px;
+  padding: 0 8px;
 }
 
 .darn-search-box__form {
   display: inline-block;
   max-width: 350px;
+  width: 100%;
+}
+
+.darn-search-box__input {
+  flex-grow: 1;
+
 }
 
 .flex-container {
   display: flex;
+}
+
+.flex-container--center {
+  align-items: center;
 }
 
 .flex-container__item {

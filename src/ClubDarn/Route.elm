@@ -33,12 +33,14 @@ type SearchType
 
 
 type Route
-    = SearchResults SearchType (Maybe Query)
+    = MainSearch
+    | SearchResults SearchType (Maybe Query)
     | SongInfo SongId
     | CategoryListing
     | ArtistSongs ArtistId
     | CategorySongs CategoryId
     | SeriesSongs SeriesTitle
+    | SimilarSongs SongId
     | NotFound
 
 
@@ -46,8 +48,14 @@ reverse : Route -> String
 reverse route =
     "#/"
         ++ case route of
+            MainSearch ->
+                ""
+
             SongInfo songId ->
                 "songs/" ++ toString songId
+
+            SimilarSongs songId ->
+                "songs/" ++ toString songId ++ "/similar"
 
             SearchResults SongSearch query ->
                 Util.maybeFold ((++) "?title=") "" query
@@ -77,14 +85,29 @@ reverse route =
                 ""
 
 
+activeTab : Route -> Int
+activeTab route =
+    case route of
+        MainSearch ->
+            0
+
+        CategoryListing ->
+            1
+
+        _ ->
+            -1
+
+
 matchers : Url.Parser (Route -> a) a
 matchers =
     Url.oneOf
-        [ Url.map (SearchResults SongSearch Nothing) Url.top
+        [ Url.map MainSearch Url.top
+        , Url.map MainSearch (s "")
         , Url.map (SearchResults SongSearch) (s "songs" <?> stringParam "title")
         , Url.map (SearchResults ArtistSearch) (s "artists" <?> stringParam "name")
         , Url.map (SearchResults SeriesSearch) (s "series" <?> stringParam "title")
         , Url.map SongInfo (s "songs" </> int)
+        , Url.map SimilarSongs (s "songs" </> int </> s "similar")
         , Url.map ArtistSongs (s "artists" </> int </> s "songs")
         , Url.map CategorySongs (s "categories" </> string </> s "songs")
         , Url.map SeriesSongs (s "series" </> string </> s "songs")

@@ -3,6 +3,7 @@ module ClubDarn.Update exposing (..)
 import ClubDarn.Msg exposing (Msg(..))
 import ClubDarn.Model as Model exposing (Model)
 import ClubDarn.Route as Route exposing (Route)
+import ClubDarn.Util as Util
 import Navigation
 import Task
 import Json.Decode as Decode
@@ -10,6 +11,7 @@ import Http
 import RemoteData
 import Json.Decode exposing (Decoder)
 import LruCache exposing (LruCache)
+import Material
 
 
 -- TODO: Put in some config
@@ -26,12 +28,26 @@ seriesCategoryId =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        Mdl m ->
+            Material.update Mdl m model
+
+        SelectTab tabNumber ->
+            case tabNumber of
+                0 ->
+                    model ! [ Route.reverse Route.MainSearch |> Navigation.newUrl ]
+
+                1 ->
+                    model ! [ Route.reverse Route.CategoryListing |> Navigation.newUrl ]
+
+                _ ->
+                    model ! []
+
         LocationChange location ->
             let
                 route =
                     Route.parseLocation location
             in
-                handleLocationChange { model | route = route, query = "" }
+                handleLocationChange { model | route = route, activeSong = Nothing }
 
         RetryRequest ->
             handleLocationChange model
@@ -71,6 +87,9 @@ update msg model =
                     _ ->
                         newModel ! []
 
+        ShowSong song ->
+            { model | activeSong = song } ! []
+
 
 handleLocationChange : Model -> ( Model, Cmd Msg )
 handleLocationChange model =
@@ -100,22 +119,10 @@ handleLocationChange model =
                 Model.PaginatedSeries
 
         Route.SongInfo songId ->
-            case model.items of
-                RemoteData.Success (Model.PaginatedSongs page) ->
-                    let
-                        newItems =
-                            page.items |> List.filter (\s -> s.id == songId)
-
-                        newResult =
-                            Model.PaginatedSongs { page | items = newItems }
-                    in
-                        { model | items = RemoteData.Success newResult } ! []
-
-                _ ->
-                    handleSearch model
-                        ("/songs/" ++ toString songId ++ "?")
-                        Model.songDecoder
-                        Model.PaginatedSongs
+            handleSearch model
+                ("/songs/" ++ toString songId ++ "?")
+                Model.songDecoder
+                Model.PaginatedSongs
 
         Route.ArtistSongs artistId ->
             handleSearch model
@@ -132,6 +139,12 @@ handleLocationChange model =
         Route.SeriesSongs seriesTitle ->
             handleSearch model
                 ("/categories/" ++ seriesCategoryId ++ "/series/" ++ seriesTitle ++ "/songs?")
+                Model.songDecoder
+                Model.PaginatedSongs
+
+        Route.SimilarSongs songId ->
+            handleSearch model
+                ("/songs/" ++ toString songId ++ "/similar?")
                 Model.songDecoder
                 Model.PaginatedSongs
 

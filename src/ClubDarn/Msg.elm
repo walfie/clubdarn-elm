@@ -4,6 +4,7 @@ import Navigation exposing (Location)
 import ClubDarn.Route as Route
 import ClubDarn.Model as Model
 import Http
+import Material
 
 
 type Msg
@@ -13,3 +14,6 @@ type Msg
     | ApiResult String (Result Http.Error Model.PaginatedItems)
     | LocationChange Location
     | RetryRequest
+    | SelectTab Int
+    | ShowSong (Maybe Model.Song)
+    | Mdl (Material.Msg Msg)

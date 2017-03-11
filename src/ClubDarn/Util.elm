@@ -55,3 +55,18 @@ orEmptyString =
 orEmptyText : Maybe String -> Html a
 orEmptyText maybe =
     maybe |> Maybe.withDefault "" |> Html.text
+
+
+maybeToList : Maybe a -> List a
+maybeToList maybe =
+    case maybe of
+        Just x ->
+            [ x ]
+
+        Nothing ->
+            []
+
+
+flattenListOfMaybe : List (Maybe a) -> List a
+flattenListOfMaybe =
+    List.concatMap maybeToList

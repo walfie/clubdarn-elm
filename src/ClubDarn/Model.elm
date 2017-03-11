@@ -5,6 +5,7 @@ import Json.Decode exposing (bool, int, string, nullable, list, Decoder)
 import Json.Decode.Pipeline exposing (decode, required, optional)
 import RemoteData exposing (WebData, RemoteData)
 import LruCache exposing (LruCache)
+import Material
 
 
 type alias Model =
@@ -12,7 +13,9 @@ type alias Model =
     , searchType : Route.SearchType
     , items : WebData PaginatedItems
     , route : Route
+    , activeSong : Maybe Song
     , responseCache : LruCache String PaginatedItems
+    , mdl : Material.Model
     }
 
 

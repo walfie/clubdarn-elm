@@ -74,7 +74,11 @@ renderSongDialog model =
 
         Just song ->
             Options.div [ Options.cs "darn-dialog", Elevation.e8 ]
-                [ div [ class "darn-dialog__title" ] [ text (displaySongId song.id) ]
+                [ a
+                    [ class "darn-dialog__title"
+                    , Route.reverse (Route.SongInfo song.id) |> href
+                    ]
+                    [ displaySongId song.id |> text ]
                 , renderSongDialogContents song
                 , div [ class "darn-dialog__actions" ]
                     [ Button.render Msg.Mdl
@@ -306,10 +310,19 @@ renderSongPage : Route -> Model.Paginated Model.Song -> Html Msg
 renderSongPage route page =
     case route of
         Route.SongInfo songId ->
-            page.items
-                |> List.head
-                |> Maybe.map renderSongInfo
-                |> Maybe.withDefault (div [] [ text "No song found" ])
+            mainGrid
+                [ text ""
+                , div []
+                    [ itemsHeader (displaySongId songId)
+                    , List.head page.items |> Util.maybeFold renderSongDialogContents (text "")
+                    , a
+                        [ Route.reverse (Route.SimilarSongs songId) |> href ]
+                        [ button
+                            [ class "mdl-button mdl-button--raised" ]
+                            [ text "Find similar songs" ]
+                        ]
+                    ]
+                ]
 
         Route.ArtistSongs artistId ->
             div []
@@ -411,13 +424,6 @@ renderSong song =
     renderSongItem song
         [ itemTitle False song.title
         , itemSubtitle song.artist.name
-        ]
-
-
-renderSongInfo : Model.Song -> Html Msg
-renderSongInfo song =
-    div []
-        [ text (toString song)
         ]
 
 

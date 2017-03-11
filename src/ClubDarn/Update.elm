@@ -3,6 +3,7 @@ module ClubDarn.Update exposing (..)
 import ClubDarn.Msg exposing (Msg(..))
 import ClubDarn.Model as Model exposing (Model)
 import ClubDarn.Route as Route exposing (Route)
+import ClubDarn.Util as Util
 import Navigation
 import Task
 import Json.Decode as Decode
@@ -122,23 +123,19 @@ handleLocationChange model =
                 -- If we already have the song, no need to request it
                 RemoteData.Success (Model.PaginatedSongs page) ->
                     let
-                        maybeSong =
-                            page.items
-                                |> List.filter (\s -> s.id == songId)
-                                |> List.head
+                        newItems =
+                            List.filter (\s -> s.id == songId) page.items
 
-                        newModel =
-                            { model | activeSong = maybeSong }
+                        newResult =
+                            Model.PaginatedSongs { page | items = newItems }
                     in
-                        case maybeSong of
-                            Just song ->
-                                newModel ! []
-
-                            Nothing ->
-                                handleSearch model
-                                    ("/songs/" ++ toString songId ++ "?")
-                                    Model.songDecoder
-                                    Model.PaginatedSongs
+                        if List.isEmpty newItems then
+                            handleSearch model
+                                ("/songs/" ++ toString songId ++ "?")
+                                Model.songDecoder
+                                Model.PaginatedSongs
+                        else
+                            { model | items = RemoteData.Success newResult } ! []
 
                 _ ->
                     handleSearch model

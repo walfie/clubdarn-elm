@@ -38,15 +38,13 @@ view model =
         { header = []
         , drawer = []
         , tabs =
-            ( List.map (flip Icon.view [ Options.cs "darn-tab-icon" ]) [ "search", "format_list_numbered" ]
+            ( [ "search", "format_list_numbered" ]
+                |> List.map (flip Icon.view [ Options.cs "darn-tab-icon" ])
             , []
             )
         , main =
             [ renderSongDialog model
-            , if model.activeSong == Nothing then
-                text ""
-              else
-                div [ class "darn-dialog__overlay" ] []
+            , renderSongDialogOverlay model
             , Grid.grid [ Options.cs "darn-main-content__container" ]
                 [ Grid.cell [ Grid.size Grid.All 1, Options.css "margin" "0" ] []
                 , Grid.cell
@@ -55,6 +53,16 @@ view model =
                 ]
             ]
         }
+
+
+renderSongDialogOverlay : Model -> Html Msg
+renderSongDialogOverlay model =
+    if model.activeSong == Nothing then
+        text ""
+    else
+        div
+            [ class "darn-dialog__overlay", onClick (Msg.ShowSong Nothing) ]
+            []
 
 
 renderSongDialog : Model -> Html Msg

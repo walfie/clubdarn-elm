@@ -19,6 +19,7 @@ initialModel location =
     , searchType = Route.SongSearch
     , items = RemoteData.NotAsked
     , route = Route.parseLocation location
+    , activeSong = Nothing
     , responseCache = LruCache.empty 50
     , mdl = Material.model
     }

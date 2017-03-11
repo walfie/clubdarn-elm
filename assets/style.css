@@ -15,6 +15,12 @@
   margin-top: 8px;
 }
 
+.darn-dialog {
+  position: fixed;
+  top: 50%;
+  transform: translate(0, -50%);
+}
+
 .darn-tab-icon {
   vertical-align: middle;
 }
@@ -64,6 +70,7 @@
 .darn-search-item__link {
   text-decoration: none;
   color: #444;
+  cursor: pointer;
 }
 
 .darn-search-item__container {

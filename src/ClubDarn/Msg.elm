@@ -15,4 +15,5 @@ type Msg
     | LocationChange Location
     | RetryRequest
     | SelectTab Int
+    | ShowSong (Maybe Model.Song)
     | Mdl (Material.Msg Msg)

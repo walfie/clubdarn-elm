@@ -13,6 +13,7 @@ import Dict exposing (Dict)
 import Material.Button as Button
 import Material.Card as Card
 import Material.Color as Color
+import Material.Dialog as Dialog
 import Material.Elevation as Elevation
 import Material.Grid as Grid
 import Material.Icon as Icon
@@ -41,7 +42,8 @@ view model =
             , []
             )
         , main =
-            [ Grid.grid [ Options.cs "darn-main-content__container" ]
+            [ renderSongDialog model
+            , Grid.grid [ Options.cs "darn-main-content__container" ]
                 [ Grid.cell [ Grid.size Grid.All 1, Options.css "margin" "0" ] []
                 , Grid.cell
                     [ Grid.size Grid.All 10, Options.cs "darn-main-content" ]
@@ -49,6 +51,43 @@ view model =
                 ]
             ]
         }
+
+
+renderSongDialog : Model -> Html Msg
+renderSongDialog model =
+    let
+        contents =
+            case model.activeSong of
+                Nothing ->
+                    []
+
+                Just song ->
+                    [ Dialog.title [] [ text (displaySongId song.id) ]
+                    , Dialog.content [] [ renderSongDialogContents song ]
+                    , Dialog.actions []
+                        [ Button.render Msg.Mdl
+                            [ 2 ]
+                            model.mdl
+                            [ Dialog.closeOn "click", Options.onClick (Msg.ShowSong Nothing) ]
+                            [ text "close" ]
+                        ]
+                    ]
+    in
+        Dialog.view [ Options.cs "darn-dialog" ] contents
+
+
+renderSongDialogContents : Model.Song -> Html Msg
+renderSongDialogContents song =
+    text (toString song)
+
+
+displaySongId : Int -> String
+displaySongId songId =
+    let
+        string =
+            toString songId
+    in
+        (String.slice 0 4 string) ++ "-" ++ (String.slice 4 6 string)
 
 
 renderSearchBox : Model -> Html Msg
@@ -152,7 +191,7 @@ renderItems model =
                 [ Options.cs "darn-center" ]
                 [ Options.div [] [ text ("Error: " ++ toString e) ]
                 , Button.render Msg.Mdl
-                    [ 0 ]
+                    [ 1 ]
                     model.mdl
                     [ Button.ripple, Button.raised, Options.onClick Msg.RetryRequest ]
                     [ text "Retry" ]
@@ -186,11 +225,24 @@ mainGrid items =
             |> Grid.grid [ Options.cs "darn-main-content__grid" ]
 
 
-renderItem : Route -> List (Html Msg) -> Html Msg
-renderItem onClickRoute innerContents =
+renderItem : List (Attribute Msg) -> List (Html Msg) -> Html Msg
+renderItem attributes innerContents =
     a
-        [ onClickRoute |> Route.reverse |> href
-        , class "darn-search-item__link"
+        (class "darn-search-item__link" :: attributes)
+        [ Options.div
+            [ Elevation.e4
+            , Options.cs "darn-search-item__container"
+            ]
+            innerContents
+        ]
+
+
+renderSongItem : Model.Song -> List (Html Msg) -> Html Msg
+renderSongItem song innerContents =
+    Options.div
+        [ Options.cs "darn-search-item__link"
+        , Dialog.openOn "click"
+        , Options.onClick (Msg.ShowSong (Just song))
         ]
         [ Options.div
             [ Elevation.e4
@@ -198,6 +250,11 @@ renderItem onClickRoute innerContents =
             ]
             innerContents
         ]
+
+
+renderRouteItem : Route -> List (Html Msg) -> Html Msg
+renderRouteItem onClickRoute =
+    renderItem [ onClickRoute |> Route.reverse |> href ]
 
 
 renderSongPage : Route -> Model.Paginated Model.Song -> Html Msg
@@ -238,7 +295,7 @@ renderSongPage route page =
 
 renderArtistSong : Model.Song -> Html Msg
 renderArtistSong song =
-    renderItem (Route.SongInfo song.id) [ itemTitle True song.title ]
+    renderSongItem song [ itemTitle True song.title ]
 
 
 renderRecentSongs : Model.Paginated Model.Song -> List (Html Msg)
@@ -264,7 +321,7 @@ renderRecentSongs page =
 
 renderCategorySong : Model.Song -> Html Msg
 renderCategorySong song =
-    renderItem (Route.SongInfo song.id)
+    renderSongItem song
         [ itemTitle False song.title
         , song.series |> Maybe.withDefault song.artist.name |> itemSubtitle
         ]
@@ -306,7 +363,7 @@ itemIcon icon =
 
 renderSong : Model.Song -> Html Msg
 renderSong song =
-    renderItem (Route.SongInfo song.id)
+    renderSongItem song
         [ itemTitle False song.title
         , itemSubtitle song.artist.name
         ]
@@ -321,12 +378,12 @@ renderSongInfo song =
 
 renderArtist : Model.Artist -> Html Msg
 renderArtist artist =
-    renderItem (Route.ArtistSongs artist.id) [ itemTitle True artist.name ]
+    renderRouteItem (Route.ArtistSongs artist.id) [ itemTitle True artist.name ]
 
 
 renderSeries : Model.Series -> Html Msg
 renderSeries series =
-    renderItem (Route.SeriesSongs series.title) [ itemTitle True series.title ]
+    renderRouteItem (Route.SeriesSongs series.title) [ itemTitle True series.title ]
 
 
 renderCategoryGroup : Model.CategoryGroup -> Html Msg
@@ -339,7 +396,7 @@ renderCategoryGroup categoryGroup =
 
 renderCategory : Model.Category -> Html Msg
 renderCategory category =
-    renderItem (Route.CategorySongs category.id)
+    renderRouteItem (Route.CategorySongs category.id)
         [ itemTitle False category.description.en
         , itemSubtitle category.description.ja
         ]

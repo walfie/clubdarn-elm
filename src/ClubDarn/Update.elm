@@ -86,6 +86,9 @@ update msg model =
                     _ ->
                         newModel ! []
 
+        ShowSong song ->
+            { model | activeSong = song } ! []
+
 
 handleLocationChange : Model -> ( Model, Cmd Msg )
 handleLocationChange model =
@@ -116,15 +119,26 @@ handleLocationChange model =
 
         Route.SongInfo songId ->
             case model.items of
+                -- If we already have the song, no need to request it
                 RemoteData.Success (Model.PaginatedSongs page) ->
                     let
-                        newItems =
-                            page.items |> List.filter (\s -> s.id == songId)
+                        maybeSong =
+                            page.items
+                                |> List.filter (\s -> s.id == songId)
+                                |> List.head
 
-                        newResult =
-                            Model.PaginatedSongs { page | items = newItems }
+                        newModel =
+                            { model | activeSong = maybeSong }
                     in
-                        { model | items = RemoteData.Success newResult } ! []
+                        case maybeSong of
+                            Just song ->
+                                newModel ! []
+
+                            Nothing ->
+                                handleSearch model
+                                    ("/songs/" ++ toString songId ++ "?")
+                                    Model.songDecoder
+                                    Model.PaginatedSongs
 
                 _ ->
                     handleSearch model

@@ -119,29 +119,10 @@ handleLocationChange model =
                 Model.PaginatedSeries
 
         Route.SongInfo songId ->
-            case model.items of
-                -- If we already have the song, no need to request it
-                RemoteData.Success (Model.PaginatedSongs page) ->
-                    let
-                        newItems =
-                            List.filter (\s -> s.id == songId) page.items
-
-                        newResult =
-                            Model.PaginatedSongs { page | items = newItems }
-                    in
-                        if List.isEmpty newItems then
-                            handleSearch model
-                                ("/songs/" ++ toString songId ++ "?")
-                                Model.songDecoder
-                                Model.PaginatedSongs
-                        else
-                            { model | items = RemoteData.Success newResult } ! []
-
-                _ ->
-                    handleSearch model
-                        ("/songs/" ++ toString songId ++ "?")
-                        Model.songDecoder
-                        Model.PaginatedSongs
+            handleSearch model
+                ("/songs/" ++ toString songId ++ "?")
+                Model.songDecoder
+                Model.PaginatedSongs
 
         Route.ArtistSongs artistId ->
             handleSearch model

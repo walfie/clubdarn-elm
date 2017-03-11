@@ -18,6 +18,7 @@ import Material.Elevation as Elevation
 import Material.Grid as Grid
 import Material.Icon as Icon
 import Material.Layout as Layout
+import Material.List as MdlList
 import Material.Options as Options
 import Material.Spinner as Spinner
 import Material.Tabs as Tabs
@@ -63,12 +64,16 @@ renderSongDialog model =
 
                 Just song ->
                     [ Dialog.title [] [ text (displaySongId song.id) ]
-                    , Dialog.content [] [ renderSongDialogContents song ]
+                    , Dialog.content
+                        [ Options.cs "darn-dialog__contents" ]
+                        [ renderSongDialogContents song ]
                     , Dialog.actions []
                         [ Button.render Msg.Mdl
                             [ 2 ]
                             model.mdl
-                            [ Dialog.closeOn "click", Options.onClick (Msg.ShowSong Nothing) ]
+                            [ Dialog.closeOn "click"
+                            , Options.onClick (Msg.ShowSong Nothing)
+                            ]
                             [ text "close" ]
                         ]
                     ]
@@ -78,7 +83,26 @@ renderSongDialog model =
 
 renderSongDialogContents : Model.Song -> Html Msg
 renderSongDialogContents song =
-    text (toString song)
+    let
+        listItem : Maybe Route -> String -> String -> Html Msg
+        listItem onClickRoute icon contents =
+            MdlList.li []
+                [ MdlList.content []
+                    [ MdlList.icon icon [ Options.cs "darn-dialog__list-icon" ]
+                    , a (onClickRoute |> Maybe.map (Route.reverse >> href) |> Util.maybeToList)
+                        [ text contents ]
+                    ]
+                ]
+
+        maybeListItems =
+            [ Just (listItem Nothing "audiotrack" song.title)
+            , Just (listItem (Route.ArtistSongs song.artist.id |> Just) "person" song.artist.name)
+            , Maybe.map (\series -> listItem (Route.SeriesSongs series |> Just) "local_movies" series) song.series
+            , Maybe.map (listItem Nothing "date_range") song.dateAdded
+            , Maybe.map (listItem Nothing "textsms") song.lyrics
+            ]
+    in
+        MdlList.ul [] (Util.flattenListOfMaybe maybeListItems)
 
 
 displaySongId : Int -> String
@@ -105,18 +129,18 @@ searchSelect model =
             , ( 3, "Series", Route.SeriesSearch )
             ]
 
-        toRadio =
-            \( id, name, searchType ) ->
-                Toggles.radio Msg.Mdl
-                    [ id ]
-                    model.mdl
-                    [ Toggles.ripple
-                    , Toggles.group "searchSelect"
-                    , Toggles.value (searchType == model.searchType)
-                    , Options.onToggle (Msg.ChangeSearchType searchType)
-                    , Options.cs "darn-search-box__search-type"
-                    ]
-                    [ text name ]
+        toRadio : ( Int, String, Route.SearchType ) -> Html Msg
+        toRadio ( id, name, searchType ) =
+            Toggles.radio Msg.Mdl
+                [ id ]
+                model.mdl
+                [ Toggles.ripple
+                , Toggles.group "searchSelect"
+                , Toggles.value (searchType == model.searchType)
+                , Options.onToggle (Msg.ChangeSearchType searchType)
+                , Options.cs "darn-search-box__search-type"
+                ]
+                [ text name ]
     in
         options |> List.map toRadio
 
@@ -301,8 +325,8 @@ renderArtistSong song =
 renderRecentSongs : Model.Paginated Model.Song -> List (Html Msg)
 renderRecentSongs page =
     let
-        sortField =
-            \s -> s.dateAdded |> Util.orEmptyString
+        sortField s =
+            Util.orEmptyString s.dateAdded
 
         groupedByDate =
             page.items

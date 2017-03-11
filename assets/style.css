@@ -21,6 +21,15 @@
   transform: translate(0, -50%);
 }
 
+.darn-dialog__contents {
+  padding: 0 !important;
+}
+
+.darn-dialog__list-icon {
+  margin-right: 10px !important;
+}
+
+
 .darn-tab-icon {
   vertical-align: middle;
 }

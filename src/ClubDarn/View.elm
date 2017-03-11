@@ -368,11 +368,11 @@ renderRecentSongs page =
                 |> Dict.toList
                 |> List.reverse
 
-        groupToHtml =
-            \( date, songs ) ->
-                [ itemsHeader date
-                , songs |> List.map renderCategorySong |> mainGrid
-                ]
+        groupToHtml : ( String, List Model.Song ) -> List (Html Msg)
+        groupToHtml ( date, songs ) =
+            [ itemsHeader date
+            , songs |> List.map renderCategorySong |> mainGrid
+            ]
     in
         List.concatMap groupToHtml groupedByDate
 
@@ -441,7 +441,10 @@ renderCategoryGroup : Model.CategoryGroup -> Html Msg
 renderCategoryGroup categoryGroup =
     div []
         [ itemsHeader categoryGroup.description.en
-        , categoryGroup.categories |> List.map renderCategory |> mainGrid
+        , categoryGroup.categories
+            |> List.sortBy (.description >> .en)
+            |> List.map renderCategory
+            |> mainGrid
         ]
 
 

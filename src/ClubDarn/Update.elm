@@ -164,6 +164,12 @@ handleLocationChange model =
                 Model.songDecoder
                 Model.PaginatedSongs
 
+        Route.SimilarSongs songId ->
+            handleSearch model
+                ("/songs/" ++ toString songId ++ "/similar?")
+                Model.songDecoder
+                Model.PaginatedSongs
+
         _ ->
             model ! []
 

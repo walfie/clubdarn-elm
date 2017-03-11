@@ -40,6 +40,7 @@ type Route
     | ArtistSongs ArtistId
     | CategorySongs CategoryId
     | SeriesSongs SeriesTitle
+    | SimilarSongs SongId
     | NotFound
 
 
@@ -52,6 +53,9 @@ reverse route =
 
             SongInfo songId ->
                 "songs/" ++ toString songId
+
+            SimilarSongs songId ->
+                "songs/" ++ toString songId ++ "/similar"
 
             SearchResults SongSearch query ->
                 Util.maybeFold ((++) "?title=") "" query
@@ -103,6 +107,7 @@ matchers =
         , Url.map (SearchResults ArtistSearch) (s "artists" <?> stringParam "name")
         , Url.map (SearchResults SeriesSearch) (s "series" <?> stringParam "title")
         , Url.map SongInfo (s "songs" </> int)
+        , Url.map SimilarSongs (s "songs" </> int </> s "similar")
         , Url.map ArtistSongs (s "artists" </> int </> s "songs")
         , Url.map CategorySongs (s "categories" </> string </> s "songs")
         , Url.map SeriesSongs (s "series" </> string </> s "songs")

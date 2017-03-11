@@ -8,6 +8,7 @@ import ClubDarn.Model as Model exposing (Model)
 import ClubDarn.Route as Route exposing (Route)
 import ClubDarn.Util as Util
 import RemoteData exposing (RemoteData, WebData)
+import Navigation
 import Http
 import Dict exposing (Dict)
 import Material.Button as Button
@@ -80,7 +81,15 @@ renderSongDialog model =
                         [ 2 ]
                         model.mdl
                         [ Options.onClick (Msg.ShowSong Nothing) ]
-                        [ text "close" ]
+                        [ text "Close" ]
+                    , a
+                        [ Route.reverse (Route.SimilarSongs song.id) |> href ]
+                        [ Button.render Msg.Mdl
+                            [ 3 ]
+                            model.mdl
+                            []
+                            [ text "Find Similar" ]
+                        ]
                     ]
                 ]
 

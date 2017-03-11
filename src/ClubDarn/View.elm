@@ -80,22 +80,31 @@ renderSongDialog model =
 renderSongDialogContents : Model.Song -> Html Msg
 renderSongDialogContents song =
     let
-        listItem : Maybe Route -> String -> String -> Html Msg
-        listItem onClickRoute icon contents =
+        listItem : String -> Html Msg -> Html Msg
+        listItem icon contents =
             MdlList.li [ Options.cs "darn-dialog__list-item" ]
                 [ MdlList.content []
                     [ MdlList.icon icon [ Options.cs "darn-dialog__list-icon" ]
-                    , a (onClickRoute |> Maybe.map (Route.reverse >> href) |> Util.maybeToList)
-                        [ text contents ]
+                    , contents
                     ]
                 ]
 
+        linkedItem : Route -> String -> Html Msg
+        linkedItem route contents =
+            a
+                [ Route.reverse route |> href, class "darn-dialog__list-item--linked" ]
+                [ text contents ]
+
         maybeListItems =
-            [ Just (listItem Nothing "audiotrack" song.title)
-            , Just (listItem (Route.ArtistSongs song.artist.id |> Just) "person" song.artist.name)
-            , Maybe.map (\series -> listItem (Route.SeriesSongs series |> Just) "local_movies" series) song.series
-            , Maybe.map (listItem Nothing "date_range") song.dateAdded
-            , Maybe.map (listItem Nothing "textsms") song.lyrics
+            [ listItem "audiotrack" (text song.title) |> Just
+            , linkedItem (Route.ArtistSongs song.artist.id) song.artist.name
+                |> listItem "person"
+                |> Just
+            , song.series
+                |> Maybe.map (\series -> linkedItem (Route.SeriesSongs series) series)
+                |> Maybe.map (listItem "local_movies")
+            , Maybe.map (listItem "date_range" << text) song.dateAdded
+            , Maybe.map (listItem "textsms" << text) song.lyrics
             ]
     in
         MdlList.ul [] (Util.flattenListOfMaybe maybeListItems)

@@ -13,7 +13,6 @@ import Dict exposing (Dict)
 import Material.Button as Button
 import Material.Card as Card
 import Material.Color as Color
-import Material.Dialog as Dialog
 import Material.Elevation as Elevation
 import Material.Grid as Grid
 import Material.Icon as Icon
@@ -44,6 +43,10 @@ view model =
             )
         , main =
             [ renderSongDialog model
+            , if model.activeSong == Nothing then
+                text ""
+              else
+                div [ class "darn-dialog__overlay" ] []
             , Grid.grid [ Options.cs "darn-main-content__container" ]
                 [ Grid.cell [ Grid.size Grid.All 1, Options.css "margin" "0" ] []
                 , Grid.cell
@@ -56,29 +59,22 @@ view model =
 
 renderSongDialog : Model -> Html Msg
 renderSongDialog model =
-    let
-        contents =
-            case model.activeSong of
-                Nothing ->
-                    []
+    case model.activeSong of
+        Nothing ->
+            text ""
 
-                Just song ->
-                    [ Dialog.title [] [ text (displaySongId song.id) ]
-                    , Dialog.content
-                        [ Options.cs "darn-dialog__contents" ]
-                        [ renderSongDialogContents song ]
-                    , Dialog.actions []
-                        [ Button.render Msg.Mdl
-                            [ 2 ]
-                            model.mdl
-                            [ Dialog.closeOn "click"
-                            , Options.onClick (Msg.ShowSong Nothing)
-                            ]
-                            [ text "close" ]
-                        ]
+        Just song ->
+            Options.div [ Options.cs "darn-dialog", Elevation.e8 ]
+                [ div [ class "darn-dialog__title" ] [ text (displaySongId song.id) ]
+                , renderSongDialogContents song
+                , div [ class "darn-dialog__actions" ]
+                    [ Button.render Msg.Mdl
+                        [ 2 ]
+                        model.mdl
+                        [ Options.onClick (Msg.ShowSong Nothing) ]
+                        [ text "close" ]
                     ]
-    in
-        Dialog.view [ Options.cs "darn-dialog" ] contents
+                ]
 
 
 renderSongDialogContents : Model.Song -> Html Msg
@@ -86,7 +82,7 @@ renderSongDialogContents song =
     let
         listItem : Maybe Route -> String -> String -> Html Msg
         listItem onClickRoute icon contents =
-            MdlList.li []
+            MdlList.li [ Options.cs "darn-dialog__list-item" ]
                 [ MdlList.content []
                     [ MdlList.icon icon [ Options.cs "darn-dialog__list-icon" ]
                     , a (onClickRoute |> Maybe.map (Route.reverse >> href) |> Util.maybeToList)
@@ -265,7 +261,6 @@ renderSongItem : Model.Song -> List (Html Msg) -> Html Msg
 renderSongItem song innerContents =
     Options.div
         [ Options.cs "darn-search-item__link"
-        , Dialog.openOn "click"
         , Options.onClick (Msg.ShowSong (Just song))
         ]
         [ Options.div

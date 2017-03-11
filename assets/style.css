@@ -17,18 +17,41 @@
 
 .darn-dialog {
   position: fixed;
+  width: 280px;
   top: 50%;
+  left: calc(50% - 145px);
   transform: translate(0, -50%);
+  background: white;
+  z-index: 10;
+  padding: 10px;
 }
 
-.darn-dialog__contents {
-  padding: 0 !important;
+.darn-dialog__overlay {
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  position: fixed;
+}
+
+.darn-dialog__title {
+  padding: 24px 24px 0;
+  font-size: 2.5rem;
+}
+
+.darn-dialog__list-item {
+  padding: 8px !important;
 }
 
 .darn-dialog__list-icon {
   margin-right: 10px !important;
 }
 
+.darn-dialog__actions {
+  padding: 8px;
+  font-size: 2.5rem;
+  display: flex;
+  flex-direction: row-reverse;
+}
 
 .darn-tab-icon {
   vertical-align: middle;

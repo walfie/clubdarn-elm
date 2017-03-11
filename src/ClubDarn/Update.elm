@@ -46,7 +46,7 @@ update msg model =
                 route =
                     Route.parseLocation location
             in
-                handleLocationChange { model | route = route }
+                handleLocationChange { model | route = route, activeSong = Nothing }
 
         RetryRequest ->
             handleLocationChange model

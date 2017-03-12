@@ -41,6 +41,7 @@ type Route
     | CategorySongs CategoryId
     | SeriesSongs SeriesTitle
     | SimilarSongs SongId
+    | Settings
     | NotFound
 
 
@@ -81,6 +82,9 @@ reverse route =
             CategoryListing ->
                 "categories"
 
+            Settings ->
+                "settings"
+
             NotFound ->
                 ""
 
@@ -112,6 +116,7 @@ matchers =
         , Url.map CategorySongs (s "categories" </> string </> s "songs")
         , Url.map SeriesSongs (s "series" </> string </> s "songs")
         , Url.map CategoryListing (s "categories")
+        , Url.map Settings (s "settings")
         ]
 
 

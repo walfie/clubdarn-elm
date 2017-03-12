@@ -31,6 +31,10 @@ update msg model =
         Mdl m ->
             Material.update Mdl m model
 
+        UpdateSettings settings ->
+            -- TODO: Update localstorage
+            { model | settings = settings } ! []
+
         SelectTab tabNumber ->
             case tabNumber of
                 0 ->
@@ -38,6 +42,9 @@ update msg model =
 
                 1 ->
                     model ! [ Route.reverse Route.CategoryListing |> Navigation.newUrl ]
+
+                2 ->
+                    model ! [ Route.reverse Route.Settings |> Navigation.newUrl ]
 
                 _ ->
                     model ! []

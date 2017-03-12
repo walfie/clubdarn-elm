@@ -15,8 +15,24 @@ type alias Model =
     , route : Route
     , activeSong : Maybe Song
     , responseCache : LruCache String PaginatedItems
+    , settings : Settings
     , mdl : Material.Model
     }
+
+
+type alias Settings =
+    { serialNo : Maybe String }
+
+
+type alias KaraokeMachine =
+    { name : String, serialNo : Maybe String }
+
+
+karaokeMachines : List KaraokeMachine
+karaokeMachines =
+    [ { name = "LiveDAM", serialNo = Nothing }
+    , { name = "PremierDAM", serialNo = Just "AB316238" }
+    ]
 
 
 type PaginatedItems

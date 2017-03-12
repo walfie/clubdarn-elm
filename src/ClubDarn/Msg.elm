@@ -16,4 +16,5 @@ type Msg
     | RetryRequest
     | SelectTab Int
     | ShowSong (Maybe Model.Song)
+    | UpdateSettings Model.Settings
     | Mdl (Material.Msg Msg)

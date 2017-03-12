@@ -39,7 +39,7 @@ view model =
         { header = []
         , drawer = []
         , tabs =
-            ( [ "search", "format_list_numbered" ]
+            ( [ "search", "format_list_numbered", "settings" ]
                 |> List.map (flip Icon.view [ Options.cs "darn-tab-icon" ])
             , []
             )
@@ -54,6 +54,28 @@ view model =
                 ]
             ]
         }
+
+
+mainContent : Model -> Html Msg
+mainContent model =
+    case model.route of
+        Route.CategoryListing ->
+            renderItems model
+
+        Route.CategorySongs _ ->
+            renderItems model
+
+        Route.MainSearch ->
+            renderSearchBox model
+
+        Route.Settings ->
+            mainGrid
+                [ text ""
+                , div [] [ itemsHeader "Settings", renderSettings model ]
+                ]
+
+        _ ->
+            div [] [ renderSearchBox model, renderItems model ]
 
 
 renderSongDialogOverlay : Model -> Html Msg
@@ -205,22 +227,6 @@ searchBox model =
             |> div [ class "flex-container" ]
         , hr [] []
         ]
-
-
-mainContent : Model -> Html Msg
-mainContent model =
-    case model.route of
-        Route.CategoryListing ->
-            renderItems model
-
-        Route.CategorySongs _ ->
-            renderItems model
-
-        Route.MainSearch ->
-            renderSearchBox model
-
-        _ ->
-            div [] [ renderSearchBox model, renderItems model ]
 
 
 renderItems : Model -> Html Msg
@@ -454,3 +460,38 @@ renderCategory category =
         [ itemTitle False category.description.en
         , itemSubtitle category.description.ja
         ]
+
+
+renderSettings : Model -> Html Msg
+renderSettings model =
+    let
+        settings =
+            model.settings
+
+        listItem : List (Html Msg) -> List (Html Msg) -> Html Msg
+        listItem contents secondaryContents =
+            MdlList.li [ Options.cs "darn-settings__list-item" ]
+                [ MdlList.content [] contents
+                , MdlList.content2 [] secondaryContents
+                ]
+
+        machineToRadio : Int -> Model.KaraokeMachine -> Html Msg
+        machineToRadio index machine =
+            Toggles.radio Msg.Mdl
+                [ 2, index ]
+                model.mdl
+                [ Toggles.value (settings.serialNo == machine.serialNo)
+                , Options.onToggle <| Msg.UpdateSettings { settings | serialNo = machine.serialNo }
+                ]
+                [ text machine.name ]
+
+        machineToggles =
+            Model.karaokeMachines
+                |> List.indexedMap machineToRadio
+                |> List.map (List.singleton >> li [])
+    in
+        MdlList.ul []
+            [ listItem
+                [ text "Machine" ]
+                [ MdlList.ul [] machineToggles ]
+            ]

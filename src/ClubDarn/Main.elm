@@ -21,6 +21,7 @@ initialModel location =
     , route = Route.parseLocation location
     , activeSong = Nothing
     , responseCache = LruCache.empty 50
+    , settings = { serialNo = Nothing }
     , mdl = Material.model
     }
 

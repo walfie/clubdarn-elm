@@ -12,6 +12,7 @@ import RemoteData exposing (RemoteData, WebData)
 import Navigation
 import Http
 import Dict exposing (Dict)
+import Material.Badge as Badge
 import Material.Button as Button
 import Material.Card as Card
 import Material.Color as Color
@@ -148,7 +149,7 @@ renderSongDialogContents seriesCategoryId song =
             , Maybe.map (listItem "date_range" << text) song.dateAdded
             , Maybe.map (listItem "textsms" << text) song.lyrics
             , if song.hasVideo then
-                Just (listItem "live_tv" <| Icon.i "check")
+                Just (listItem "movie" <| Icon.i "check")
               else
                 Nothing
             ]
@@ -314,25 +315,20 @@ renderItem attributes innerContents =
 
 renderSongItem : Model.Song -> List (Html Msg) -> Html Msg
 renderSongItem song innerContents =
-    let
-        videoIndicator =
-            if song.hasVideo then
-                [ div [ class "darn-search-item__has-video" ]
-                    [ Icon.i "live_tv" ]
-                ]
-            else
-                []
-    in
-        Options.div
-            [ Options.cs "darn-search-item__link"
-            , Options.onClick (Msg.ShowSong (Just song))
+    Options.div
+        [ Options.cs "darn-search-item__link"
+        , Options.onClick (Msg.ShowSong (Just song))
+        , if song.hasVideo then
+            Options.cs "darn-search-item__link--has-video"
+          else
+            Options.nop
+        ]
+        [ Options.div
+            [ Elevation.e4
+            , Options.cs "darn-search-item__container"
             ]
-            [ Options.div
-                [ Elevation.e4
-                , Options.cs "darn-search-item__container"
-                ]
-                (videoIndicator ++ innerContents)
-            ]
+            innerContents
+        ]
 
 
 renderRouteItem : Route -> List (Html Msg) -> Html Msg
@@ -426,10 +422,10 @@ itemTitle isLarge string =
             else
                 ""
 
-        class =
+        itemClass =
             "darn-search-item__title" ++ suffix
     in
-        Options.div [ Options.cs class ] [ text string ]
+        div [ class itemClass ] [ text string ]
 
 
 itemSubtitle : String -> Html Msg

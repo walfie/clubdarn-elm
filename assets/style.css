@@ -110,11 +110,24 @@
   padding-left: 10px;
 }
 
-.darn-search-item__has-video {
-  text-align: center;
-  border-bottom: 1px solid #ccc;
-  padding-bottom: 5px;
-  margin-bottom: 8px;
+.darn-search-item__link--has-video {
+  position: relative;
+}
+
+.darn-search-item__link--has-video::after {
+  content: "🎬";
+  position: absolute;
+  color: #fff;
+  background: #d00303;
+  top: -8px;
+  right: -8px;
+  font-size: 12px;
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .darn-search-item__link {
@@ -151,5 +164,5 @@
 }
 
 .darn-settings__list-item {
-  border-top: 1px dashed;
+  border-top: 1px solid #ccc;
 }

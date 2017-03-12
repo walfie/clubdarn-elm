@@ -71,6 +71,10 @@
   padding-bottom: 16px !important;
 }
 
+.darn-main-content__grid--centered {
+  justify-content: center;
+}
+
 .darn-search-box {
   text-align: center;
   margin-top: -10px;

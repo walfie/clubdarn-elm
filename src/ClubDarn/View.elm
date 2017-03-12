@@ -69,10 +69,7 @@ mainContent model =
             renderSearchBox model
 
         Route.Settings ->
-            mainGrid
-                [ text ""
-                , div [] [ itemsHeader "Settings", renderSettings model ]
-                ]
+            centeredColumn [ itemsHeader "Settings", renderSettings model ]
 
         _ ->
             div [] [ renderSearchBox model, renderItems model ]
@@ -276,9 +273,17 @@ mainGrid items =
             ]
     else
         items
-            |> List.map List.singleton
-            |> List.map (Grid.cell [ Grid.size Grid.All 4 ])
+            |> List.map (List.singleton >> Grid.cell [ Grid.size Grid.All 4 ])
             |> Grid.grid [ Options.cs "darn-main-content__grid" ]
+
+
+centeredColumn : List (Html Msg) -> Html Msg
+centeredColumn contents =
+    Grid.grid
+        [ Options.cs "darn-main-content__grid"
+        , Options.cs "darn-main-content__grid--centered"
+        ]
+        [ Grid.cell [ Grid.size Grid.All 4 ] contents ]
 
 
 renderItem : List (Attribute Msg) -> List (Html Msg) -> Html Msg
@@ -316,17 +321,14 @@ renderSongPage : Route -> Model.Paginated Model.Song -> Html Msg
 renderSongPage route page =
     case route of
         Route.SongInfo songId ->
-            mainGrid
-                [ text ""
-                , div []
-                    [ itemsHeader (displaySongId songId)
-                    , List.head page.items |> Util.maybeFold renderSongDialogContents (text "")
-                    , a
-                        [ Route.reverse (Route.SimilarSongs songId) |> href ]
-                        [ button
-                            [ class "mdl-button mdl-button--raised" ]
-                            [ text "Find similar songs" ]
-                        ]
+            centeredColumn
+                [ itemsHeader (displaySongId songId)
+                , List.head page.items |> Util.maybeFold renderSongDialogContents (text "")
+                , a
+                    [ Route.reverse (Route.SimilarSongs songId) |> href ]
+                    [ button
+                        [ class "mdl-button mdl-button--raised" ]
+                        [ text "Find similar songs" ]
                     ]
                 ]
 

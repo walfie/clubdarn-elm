@@ -137,10 +137,7 @@ renderSongDialogContents seriesCategoryId song =
 
         seriesItemFromTitle : String -> Html Msg
         seriesItemFromTitle title =
-            Util.maybeFold
-                (\categoryId -> linkedItem (Route.SeriesSongs categoryId title) title)
-                (text title)
-                seriesCategoryId
+            linkedItem (Route.SeriesSongs defaultSeriesCategoryId title) title
 
         maybeListItems =
             [ listItem "audiotrack" (text song.title) |> Just

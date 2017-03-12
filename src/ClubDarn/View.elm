@@ -147,6 +147,10 @@ renderSongDialogContents seriesCategoryId song =
             , Maybe.map (listItem "local_movies" << seriesItemFromTitle) song.series
             , Maybe.map (listItem "date_range" << text) song.dateAdded
             , Maybe.map (listItem "textsms" << text) song.lyrics
+            , if song.hasVideo then
+                Just (listItem "live_tv" <| Icon.i "check")
+              else
+                Nothing
             ]
     in
         MdlList.ul [] (Util.flattenListOfMaybe maybeListItems)
@@ -310,16 +314,25 @@ renderItem attributes innerContents =
 
 renderSongItem : Model.Song -> List (Html Msg) -> Html Msg
 renderSongItem song innerContents =
-    Options.div
-        [ Options.cs "darn-search-item__link"
-        , Options.onClick (Msg.ShowSong (Just song))
-        ]
-        [ Options.div
-            [ Elevation.e4
-            , Options.cs "darn-search-item__container"
+    let
+        videoIndicator =
+            if song.hasVideo then
+                [ div [ class "darn-search-item__has-video" ]
+                    [ Icon.i "live_tv" ]
+                ]
+            else
+                []
+    in
+        Options.div
+            [ Options.cs "darn-search-item__link"
+            , Options.onClick (Msg.ShowSong (Just song))
             ]
-            innerContents
-        ]
+            [ Options.div
+                [ Elevation.e4
+                , Options.cs "darn-search-item__container"
+                ]
+                (videoIndicator ++ innerContents)
+            ]
 
 
 renderRouteItem : Route -> List (Html Msg) -> Html Msg

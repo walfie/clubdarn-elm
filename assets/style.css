@@ -110,6 +110,13 @@
   padding-left: 10px;
 }
 
+.darn-search-item__has-video {
+  text-align: center;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 5px;
+  margin-bottom: 8px;
+}
+
 .darn-search-item__link {
   text-decoration: none;
   color: #444;

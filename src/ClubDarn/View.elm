@@ -334,7 +334,7 @@ renderSongPage route page =
             div []
                 [ page.items
                     |> List.head
-                    |> Maybe.map (\s -> s.artist.name)
+                    |> Maybe.map (.artist >> .name)
                     |> Util.orEmptyString
                     |> itemsHeader
                 , page.items |> List.map renderArtistSong |> mainGrid

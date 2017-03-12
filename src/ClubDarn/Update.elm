@@ -12,6 +12,7 @@ import RemoteData
 import Json.Decode exposing (Decoder)
 import LruCache exposing (LruCache)
 import Material
+import QueryString exposing (QueryString)
 
 
 -- TODO: Put in some config
@@ -98,60 +99,83 @@ update msg model =
             { model | activeSong = song } ! []
 
 
+apiQuery : Model -> List ( String, String ) -> QueryString
+apiQuery model params =
+    let
+        base =
+            case model.settings.serialNo of
+                Just s ->
+                    QueryString.empty |> QueryString.add "serial_no" s
+
+                Nothing ->
+                    QueryString.empty
+    in
+        List.foldl (uncurry QueryString.add) base params
+
+
 handleLocationChange : Model -> ( Model, Cmd Msg )
 handleLocationChange model =
     case model.route of
         Route.CategoryListing ->
             handleSearch model
                 "/categories"
+                QueryString.empty
                 Model.categoryGroupDecoder
                 Model.PaginatedCategoryGroups
 
         Route.SearchResults (Route.SongSearch) (Just query) ->
             handleSearch model
-                ("/songs/?title=" ++ query)
+                "/songs/"
+                (apiQuery model [ ( "title", query ) ])
                 Model.songDecoder
                 Model.PaginatedSongs
 
         Route.SearchResults (Route.ArtistSearch) (Just query) ->
             handleSearch model
-                ("/artists/?name=" ++ query)
+                "/artists/"
+                (apiQuery model [ ( "name", query ) ])
                 Model.artistDecoder
                 Model.PaginatedArtists
 
         Route.SearchResults (Route.SeriesSearch) (Just query) ->
             handleSearch model
-                ("/series/?title=" ++ query)
+                "/series/"
+                (apiQuery model [ ( "title", query ) ])
                 Model.seriesDecoder
                 Model.PaginatedSeries
 
         Route.SongInfo songId ->
             handleSearch model
-                ("/songs/" ++ toString songId ++ "?")
+                ("/songs/" ++ toString songId)
+                QueryString.empty
                 Model.songDecoder
                 Model.PaginatedSongs
 
         Route.ArtistSongs artistId ->
             handleSearch model
-                ("/artists/" ++ toString artistId ++ "/songs?")
+                ("/artists/" ++ toString artistId ++ "/songs")
+                QueryString.empty
                 Model.songDecoder
                 Model.PaginatedSongs
 
         Route.CategorySongs categoryId ->
             handleSearch model
-                ("/categories/" ++ categoryId ++ "/songs?")
+                ("/categories/" ++ categoryId ++ "/songs")
+                QueryString.empty
                 Model.songDecoder
                 Model.PaginatedSongs
 
         Route.SeriesSongs seriesTitle ->
             handleSearch model
-                ("/categories/" ++ seriesCategoryId ++ "/series/" ++ seriesTitle ++ "/songs?")
+                ("/categories/" ++ seriesCategoryId ++ "/series/" ++ seriesTitle ++ "/songs")
+                QueryString.empty
                 Model.songDecoder
                 Model.PaginatedSongs
 
         Route.SimilarSongs songId ->
             handleSearch model
-                ("/songs/" ++ toString songId ++ "/similar?")
+                ("/songs/" ++ toString songId ++ "/similar")
+                QueryString.empty
                 Model.songDecoder
                 Model.PaginatedSongs
 
@@ -159,11 +183,18 @@ handleLocationChange model =
             model ! []
 
 
-handleSearch model path itemDecoder itemType =
+handleSearch :
+    Model
+    -> String
+    -> QueryString
+    -> Decoder t
+    -> (Model.Paginated t -> Model.PaginatedItems)
+    -> ( Model, Cmd Msg )
+handleSearch model path query itemDecoder itemType =
     let
         -- TODO: serial_no
         url =
-            apiBaseUrl ++ path
+            apiBaseUrl ++ path ++ (QueryString.render query)
 
         ( updatedCache, cachedPage ) =
             model.responseCache |> LruCache.get url

@@ -3,16 +3,16 @@
 }
 
 .darn-center {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   text-align: center;
-  margin-top: 200px;
-}
-
-.darn-center__spinner {
-  margin-left: -16px;
-}
-
-.darn-center__text {
-  margin-top: 8px;
+  line-height: 2em;
 }
 
 .darn-dialog {
@@ -65,6 +65,7 @@
 
 .darn-main-content__container {
   padding: 8px 0 !important;
+  justify-content: center;
 }
 
 .darn-main-content__grid {

@@ -47,32 +47,31 @@ view model =
             [ renderSongDialog model
             , renderSongDialogOverlay model
             , Grid.grid [ Options.cs "darn-main-content__container" ]
-                [ Grid.cell [ Grid.size Grid.All 1, Options.css "margin" "0" ] []
-                , Grid.cell
+                [ Grid.cell
                     [ Grid.size Grid.All 10, Options.cs "darn-main-content" ]
-                    [ mainContent model ]
+                    (mainContent model)
                 ]
             ]
         }
 
 
-mainContent : Model -> Html Msg
+mainContent : Model -> List (Html Msg)
 mainContent model =
     case model.route of
         Route.CategoryListing ->
-            renderItems model
+            [ renderItems model ]
 
         Route.CategorySongs _ ->
-            renderItems model
+            [ renderItems model ]
 
         Route.MainSearch ->
-            renderSearchBox model
+            [ renderSearchBox model ]
 
         Route.Settings ->
-            centeredColumn [ itemsHeader "Settings", renderSettings model ]
+            [ centeredColumn [ itemsHeader "Settings", renderSettings model ] ]
 
         _ ->
-            div [] [ renderSearchBox model, renderItems model ]
+            [ renderSearchBox model, renderItems model ]
 
 
 renderSongDialogOverlay : Model -> Html Msg
@@ -235,19 +234,23 @@ renderItems model =
         RemoteData.Loading ->
             Options.div
                 [ Options.cs "darn-center" ]
-                [ Spinner.spinner [ Spinner.active True, Options.cs "darn-centerspinner" ]
-                , Options.div [ Options.cs "darn-centertext" ] [ text "Loading..." ]
+                [ Options.div [ Options.cs "darn-spinner" ]
+                    [ Spinner.spinner [ Spinner.active True ]
+                    , Options.div [ Options.cs "darn-center--text" ] [ text "Loading..." ]
+                    ]
                 ]
 
         RemoteData.Failure e ->
             Options.div
                 [ Options.cs "darn-center" ]
-                [ Options.div [] [ text ("Error: " ++ toString e) ]
-                , Button.render Msg.Mdl
-                    [ 1 ]
-                    model.mdl
-                    [ Button.ripple, Button.raised, Options.onClick Msg.RetryRequest ]
-                    [ text "Retry" ]
+                [ Options.div []
+                    [ Options.div [] [ text ("Error: " ++ toString e) ]
+                    , Button.render Msg.Mdl
+                        [ 1 ]
+                        model.mdl
+                        [ Button.ripple, Button.raised, Options.onClick Msg.RetryRequest ]
+                        [ text "Retry" ]
+                    ]
                 ]
 
         RemoteData.Success (Model.PaginatedSongs page) ->

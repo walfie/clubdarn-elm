@@ -98,6 +98,9 @@ activeTab route =
         CategoryListing ->
             1
 
+        Settings ->
+            2
+
         _ ->
             -1
 

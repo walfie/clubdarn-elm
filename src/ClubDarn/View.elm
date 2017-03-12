@@ -7,6 +7,7 @@ import ClubDarn.Msg as Msg exposing (Msg)
 import ClubDarn.Model as Model exposing (Model)
 import ClubDarn.Route as Route exposing (Route)
 import ClubDarn.Util as Util
+import ClubDarn.Update exposing (defaultSeriesCategoryId)
 import RemoteData exposing (RemoteData, WebData)
 import Navigation
 import Http
@@ -97,7 +98,7 @@ renderSongDialog model =
                     , Route.reverse (Route.SongInfo song.id) |> href
                     ]
                     [ displaySongId song.id |> text ]
-                , renderSongDialogContents song
+                , renderSongDialogContents (Model.getSeriesCategoryId model) song
                 , div [ class "darn-dialog__actions" ]
                     [ Button.render Msg.Mdl
                         [ 2 ]
@@ -116,8 +117,8 @@ renderSongDialog model =
                 ]
 
 
-renderSongDialogContents : Model.Song -> Html Msg
-renderSongDialogContents song =
+renderSongDialogContents : Maybe String -> Model.Song -> Html Msg
+renderSongDialogContents seriesCategoryId song =
     let
         listItem : String -> Html Msg -> Html Msg
         listItem icon contents =
@@ -134,14 +135,19 @@ renderSongDialogContents song =
                 [ Route.reverse route |> href, class "darn-dialog__list-item--linked" ]
                 [ text contents ]
 
+        seriesItemFromTitle : String -> Html Msg
+        seriesItemFromTitle title =
+            Util.maybeFold
+                (\categoryId -> linkedItem (Route.SeriesSongs categoryId title) title)
+                (text title)
+                seriesCategoryId
+
         maybeListItems =
             [ listItem "audiotrack" (text song.title) |> Just
             , linkedItem (Route.ArtistSongs song.artist.id) song.artist.name
                 |> listItem "person"
                 |> Just
-            , song.series
-                |> Maybe.map (\series -> linkedItem (Route.SeriesSongs series) series)
-                |> Maybe.map (listItem "local_movies")
+            , Maybe.map (listItem "local_movies" << seriesItemFromTitle) song.series
             , Maybe.map (listItem "date_range" << text) song.dateAdded
             , Maybe.map (listItem "textsms" << text) song.lyrics
             ]
@@ -260,7 +266,11 @@ renderItems model =
             page.items |> List.map renderArtist |> mainGrid
 
         RemoteData.Success (Model.PaginatedSeries page) ->
-            page.items |> List.map renderSeries |> mainGrid
+            let
+                categoryId =
+                    Maybe.withDefault defaultSeriesCategoryId page.seriesCategoryId
+            in
+                page.items |> List.map (renderSeries categoryId) |> mainGrid
 
         RemoteData.Success (Model.PaginatedCategoryGroups page) ->
             page.items |> List.map renderCategoryGroup |> div []
@@ -326,7 +336,8 @@ renderSongPage route page =
         Route.SongInfo songId ->
             centeredColumn
                 [ itemsHeader (displaySongId songId)
-                , List.head page.items |> Util.maybeFold renderSongDialogContents (text "")
+                , List.head page.items
+                    |> Util.maybeFold (renderSongDialogContents page.seriesCategoryId) (text "")
                 , a
                     [ Route.reverse (Route.SimilarSongs songId) |> href ]
                     [ button
@@ -345,7 +356,7 @@ renderSongPage route page =
                 , page.items |> List.map renderArtistSong |> mainGrid
                 ]
 
-        Route.SeriesSongs seriesTitle ->
+        Route.SeriesSongs categoryId seriesTitle ->
             div []
                 [ Http.decodeUri seriesTitle |> Util.orEmptyString |> itemsHeader
                 , page.items |> List.map renderSong |> mainGrid
@@ -443,9 +454,11 @@ renderArtist artist =
     renderRouteItem (Route.ArtistSongs artist.id) [ itemTitle True artist.name ]
 
 
-renderSeries : Model.Series -> Html Msg
-renderSeries series =
-    renderRouteItem (Route.SeriesSongs series.title) [ itemTitle True series.title ]
+renderSeries : String -> Model.Series -> Html Msg
+renderSeries categoryId series =
+    renderRouteItem
+        (Route.SeriesSongs categoryId series.title)
+        [ itemTitle True series.title ]
 
 
 renderCategoryGroup : Model.CategoryGroup -> Html Msg

@@ -37,9 +37,10 @@ type Route
     | SearchResults SearchType (Maybe Query)
     | SongInfo SongId
     | CategoryListing
+    | SeriesListing CategoryId
     | ArtistSongs ArtistId
     | CategorySongs CategoryId
-    | SeriesSongs SeriesTitle
+    | SeriesSongs CategoryId SeriesTitle
     | SimilarSongs SongId
     | Settings
     | NotFound
@@ -76,11 +77,14 @@ reverse route =
             CategorySongs categoryId ->
                 "categories/" ++ categoryId ++ "/songs"
 
-            SeriesSongs seriesTitle ->
-                "series/" ++ (Http.encodeUri seriesTitle) ++ "/songs"
+            SeriesSongs categoryId seriesTitle ->
+                "categories/" ++ categoryId ++ "/series/" ++ (Http.encodeUri seriesTitle) ++ "/songs"
 
             CategoryListing ->
                 "categories"
+
+            SeriesListing categoryId ->
+                "categories/" ++ categoryId ++ "/series"
 
             Settings ->
                 "settings"
@@ -117,8 +121,9 @@ matchers =
         , Url.map SimilarSongs (s "songs" </> int </> s "similar")
         , Url.map ArtistSongs (s "artists" </> int </> s "songs")
         , Url.map CategorySongs (s "categories" </> string </> s "songs")
-        , Url.map SeriesSongs (s "series" </> string </> s "songs")
+        , Url.map SeriesSongs (s "categories" </> string </> s "series" </> string </> s "songs")
         , Url.map CategoryListing (s "categories")
+        , Url.map SeriesListing (s "categories" </> string </> s "series")
         , Url.map Settings (s "settings")
         ]
 

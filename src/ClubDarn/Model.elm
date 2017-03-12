@@ -20,6 +20,29 @@ type alias Model =
     }
 
 
+getSeriesCategoryId : Model -> Maybe String
+getSeriesCategoryId model =
+    let
+        getCategoryIdFromPage : PaginatedItems -> Maybe String
+        getCategoryIdFromPage page =
+            case page of
+                PaginatedSongs items ->
+                    items.seriesCategoryId
+
+                PaginatedSeries items ->
+                    items.seriesCategoryId
+
+                _ ->
+                    Nothing
+    in
+        case model.items of
+            RemoteData.Success page ->
+                getCategoryIdFromPage page
+
+            _ ->
+                Nothing
+
+
 type alias Settings =
     { serialNo : Maybe String }
 

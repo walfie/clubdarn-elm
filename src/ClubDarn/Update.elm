@@ -22,7 +22,7 @@ apiBaseUrl =
     "http://localhost:8000/api"
 
 
-seriesCategoryId =
+defaultSeriesCategoryId =
     "050100"
 
 
@@ -125,6 +125,13 @@ handleLocationChange model =
                 Model.categoryGroupDecoder
                 Model.PaginatedCategoryGroups
 
+        Route.SeriesListing categoryId ->
+            handleSearch model
+                ("/categories/" ++ categoryId ++ "/series")
+                []
+                Model.seriesDecoder
+                Model.PaginatedSeries
+
         Route.SearchResults (Route.SongSearch) (Just query) ->
             handleSearch model
                 "/songs/"
@@ -167,9 +174,9 @@ handleLocationChange model =
                 Model.songDecoder
                 Model.PaginatedSongs
 
-        Route.SeriesSongs seriesTitle ->
+        Route.SeriesSongs categoryId seriesTitle ->
             handleSearch model
-                ("/categories/" ++ seriesCategoryId ++ "/series/" ++ seriesTitle ++ "/songs")
+                ("/categories/" ++ categoryId ++ "/series/" ++ seriesTitle ++ "/songs")
                 []
                 Model.songDecoder
                 Model.PaginatedSongs

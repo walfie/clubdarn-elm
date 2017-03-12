@@ -282,9 +282,11 @@ mainGrid : List (Html Msg) -> Html Msg
 mainGrid items =
     if List.isEmpty items then
         div [ class "darn-center" ]
-            [ Icon.view "sentiment_very_dissatisfied"
-                [ Icon.size48, Color.color Color.Grey Color.S500 |> Color.text ]
-            , div [] [ text "Nothing found" ]
+            [ div []
+                [ Icon.view "sentiment_very_dissatisfied"
+                    [ Icon.size48, Color.color Color.Grey Color.S500 |> Color.text ]
+                , div [] [ text "Nothing found" ]
+                ]
             ]
     else
         items

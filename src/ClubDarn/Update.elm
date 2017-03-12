@@ -1,4 +1,4 @@
-module ClubDarn.Update exposing (..)
+port module ClubDarn.Update exposing (..)
 
 import ClubDarn.Msg exposing (Msg(..))
 import ClubDarn.Model as Model exposing (Model)
@@ -26,6 +26,9 @@ seriesCategoryId =
     "050100"
 
 
+port saveSettings : Model.Settings -> Cmd msg
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -33,8 +36,7 @@ update msg model =
             Material.update Mdl m model
 
         UpdateSettings settings ->
-            -- TODO: Update localstorage
-            { model | settings = settings } ! []
+            { model | settings = settings } ! [ saveSettings settings ]
 
         SelectTab tabNumber ->
             case tabNumber of

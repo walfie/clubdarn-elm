@@ -11,7 +11,22 @@
 
 <script src="target/clubdarn.js"></script>
 <script>
-Elm.ClubDarn.Main.fullscreen();
+var ClubDarn = (function() {
+  var settingsKey = 'settings';
+
+  // Initialize settings from localStorage
+  var settingsJson = localStorage.getItem(settingsKey);
+  var settings = null;
+  try { settings = JSON.parse(settingsJson) } catch (e) {};
+
+  var app = Elm.ClubDarn.Main.fullscreen(settings);
+
+  app.ports.saveSettings.subscribe(function(settings) {
+    localStorage.setItem(settingsKey, JSON.stringify(settings));
+  });
+
+  return app;
+}());
 </script>
 
 <link rel="stylesheet" href="assets/style.css">

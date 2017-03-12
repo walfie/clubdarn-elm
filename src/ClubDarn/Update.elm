@@ -119,63 +119,63 @@ handleLocationChange model =
         Route.CategoryListing ->
             handleSearch model
                 "/categories"
-                QueryString.empty
+                []
                 Model.categoryGroupDecoder
                 Model.PaginatedCategoryGroups
 
         Route.SearchResults (Route.SongSearch) (Just query) ->
             handleSearch model
                 "/songs/"
-                (apiQuery model [ ( "title", query ) ])
+                [ ( "title", query ) ]
                 Model.songDecoder
                 Model.PaginatedSongs
 
         Route.SearchResults (Route.ArtistSearch) (Just query) ->
             handleSearch model
                 "/artists/"
-                (apiQuery model [ ( "name", query ) ])
+                [ ( "name", query ) ]
                 Model.artistDecoder
                 Model.PaginatedArtists
 
         Route.SearchResults (Route.SeriesSearch) (Just query) ->
             handleSearch model
                 "/series/"
-                (apiQuery model [ ( "title", query ) ])
+                [ ( "title", query ) ]
                 Model.seriesDecoder
                 Model.PaginatedSeries
 
         Route.SongInfo songId ->
             handleSearch model
                 ("/songs/" ++ toString songId)
-                QueryString.empty
+                []
                 Model.songDecoder
                 Model.PaginatedSongs
 
         Route.ArtistSongs artistId ->
             handleSearch model
                 ("/artists/" ++ toString artistId ++ "/songs")
-                QueryString.empty
+                []
                 Model.songDecoder
                 Model.PaginatedSongs
 
         Route.CategorySongs categoryId ->
             handleSearch model
                 ("/categories/" ++ categoryId ++ "/songs")
-                QueryString.empty
+                []
                 Model.songDecoder
                 Model.PaginatedSongs
 
         Route.SeriesSongs seriesTitle ->
             handleSearch model
                 ("/categories/" ++ seriesCategoryId ++ "/series/" ++ seriesTitle ++ "/songs")
-                QueryString.empty
+                []
                 Model.songDecoder
                 Model.PaginatedSongs
 
         Route.SimilarSongs songId ->
             handleSearch model
                 ("/songs/" ++ toString songId ++ "/similar")
-                QueryString.empty
+                []
                 Model.songDecoder
                 Model.PaginatedSongs
 
@@ -186,18 +186,20 @@ handleLocationChange model =
 handleSearch :
     Model
     -> String
-    -> QueryString
+    -> List ( String, String )
     -> Decoder t
     -> (Model.Paginated t -> Model.PaginatedItems)
     -> ( Model, Cmd Msg )
-handleSearch model path query itemDecoder itemType =
+handleSearch model path queryParams itemDecoder itemType =
     let
-        -- TODO: serial_no
+        query =
+            apiQuery model queryParams
+
         url =
             apiBaseUrl ++ path ++ (QueryString.render query)
 
         ( updatedCache, cachedPage ) =
-            model.responseCache |> LruCache.get url
+            LruCache.get url model.responseCache
     in
         case cachedPage of
             Just page ->

@@ -473,17 +473,26 @@ renderCategoryGroup categoryGroup =
         [ itemsHeader categoryGroup.description.en
         , categoryGroup.categories
             |> List.sortBy (.description >> .en)
-            |> List.map renderCategory
+            |> List.map (renderCategory categoryGroup.categoryType)
             |> mainGrid
         ]
 
 
-renderCategory : Model.Category -> Html Msg
-renderCategory category =
-    renderRouteItem (Route.CategorySongs category.id)
-        [ itemTitle False category.description.en
-        , itemSubtitle category.description.ja
-        ]
+renderCategory : Model.CategoryType -> Model.Category -> Html Msg
+renderCategory categoryType category =
+    let
+        route =
+            case categoryType of
+                Model.SongCategory ->
+                    Route.CategorySongs category.id
+
+                Model.SeriesCategory ->
+                    Route.SeriesListing category.id
+    in
+        renderRouteItem route
+            [ itemTitle False category.description.en
+            , itemSubtitle category.description.ja
+            ]
 
 
 renderSettings : Model -> Html Msg

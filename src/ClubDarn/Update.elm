@@ -83,11 +83,22 @@ update msg model =
 
         ApiResult url result ->
             let
+                newItems =
+                    -- Manually add the music videos category group to the response
+                    case RemoteData.fromResult result of
+                        RemoteData.Success (Model.PaginatedCategoryGroups page) ->
+                            { page | items = page.items ++ [ Model.musicVideoSeriesCategoryGroup ] }
+                                |> Model.PaginatedCategoryGroups
+                                |> RemoteData.Success
+
+                        other ->
+                            other
+
                 newModel =
-                    { model | items = RemoteData.fromResult result }
+                    { model | items = newItems }
             in
-                case result of
-                    Ok page ->
+                case newItems of
+                    RemoteData.Success page ->
                         let
                             updatedCache =
                                 model.responseCache |> LruCache.insert url page

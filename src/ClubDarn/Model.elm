@@ -2,7 +2,7 @@ module ClubDarn.Model exposing (..)
 
 import ClubDarn.Route as Route exposing (Route)
 import Json.Decode exposing (bool, int, string, nullable, list, Decoder)
-import Json.Decode.Pipeline exposing (decode, required, optional)
+import Json.Decode.Pipeline exposing (decode, required, optional, hardcoded)
 import RemoteData exposing (WebData, RemoteData)
 import LruCache exposing (LruCache)
 import Material
@@ -116,9 +116,15 @@ seriesDecoder =
         |> optional "firstKana" (nullable string) Nothing
 
 
+type CategoryType
+    = SongCategory
+    | SeriesCategory
+
+
 type alias CategoryGroup =
     { description : Description
     , categories : List Category
+    , categoryType : CategoryType
     }
 
 
@@ -127,6 +133,21 @@ categoryGroupDecoder =
     decode CategoryGroup
         |> required "description" descriptionDecoder
         |> required "categories" (list categoryDecoder)
+        |> hardcoded SongCategory
+
+
+{-| Hardcoding this because changing the server to return it is too much effort
+-}
+musicVideoSeriesCategoryGroup : CategoryGroup
+musicVideoSeriesCategoryGroup =
+    { description = { ja = "アニメ･特撮", en = "Series" }
+    , categories =
+        [ { id = "050300"
+          , description = { ja = "映像", en = "Music Video" }
+          }
+        ]
+    , categoryType = SeriesCategory
+    }
 
 
 type alias Description =

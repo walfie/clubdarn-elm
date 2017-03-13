@@ -3,6 +3,7 @@ module ClubDarn.Model exposing (..)
 import ClubDarn.Route as Route exposing (Route)
 import Json.Decode exposing (bool, int, string, nullable, list, Decoder)
 import Json.Decode.Pipeline exposing (decode, required, optional, hardcoded)
+import Json.Encode as Encode
 import RemoteData exposing (WebData, RemoteData)
 import LruCache exposing (LruCache)
 import Material
@@ -15,8 +16,16 @@ type alias Model =
     , route : Route
     , activeSong : Maybe Song
     , responseCache : LruCache String PaginatedItems
+    , fileSearchState : Maybe FileSearchState
     , settings : Settings
     , mdl : Material.Model
+    }
+
+
+type alias FileSearchState =
+    { items : List TitleAndArtist
+    , progress : Int
+    , total : Int
     }
 
 
@@ -41,6 +50,18 @@ getSeriesCategoryId model =
 
             _ ->
                 Nothing
+
+
+type alias TitleAndArtist =
+    { title : String, artist : String }
+
+
+titleAndArtistEncoder : TitleAndArtist -> Encode.Value
+titleAndArtistEncoder data =
+    Encode.object
+        [ ( "title", Encode.string data.title )
+        , ( "artist", Encode.string data.artist )
+        ]
 
 
 type alias Settings =

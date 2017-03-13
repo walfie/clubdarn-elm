@@ -4,6 +4,7 @@ import Navigation exposing (Location)
 import UrlParser as Url exposing ((<?>), (</>), int, s, string, stringParam)
 import Http
 import ClubDarn.Util as Util
+import Dict exposing (Dict)
 
 
 type alias Query =
@@ -42,6 +43,7 @@ type Route
     | CategorySongs CategoryId
     | SeriesSongs CategoryId SeriesTitle
     | SimilarSongs SongId
+    | FileSearch
     | Settings
     | NotFound
 
@@ -89,24 +91,57 @@ reverse route =
             Settings ->
                 "settings"
 
+            FileSearch ->
+                "files"
+
             NotFound ->
                 ""
+
+
+type alias Tabs =
+    { mainSearch : Int
+    , categoryListing : Int
+    , fileSearch : Int
+    , settings : Int
+    }
+
+
+tabs : Tabs
+tabs =
+    { mainSearch = 0
+    , categoryListing = 1
+    , fileSearch = 2
+    , settings = 3
+    }
 
 
 activeTab : Route -> Int
 activeTab route =
     case route of
         MainSearch ->
-            0
+            tabs.mainSearch
 
         CategoryListing ->
-            1
+            tabs.categoryListing
+
+        FileSearch ->
+            tabs.fileSearch
 
         Settings ->
-            2
+            tabs.settings
 
         _ ->
             -1
+
+
+tabDict : Dict Int Route
+tabDict =
+    Dict.fromList
+        [ ( tabs.mainSearch, MainSearch )
+        , ( tabs.categoryListing, CategoryListing )
+        , ( tabs.fileSearch, FileSearch )
+        , ( tabs.settings, Settings )
+        ]
 
 
 matchers : Url.Parser (Route -> a) a
@@ -124,6 +159,7 @@ matchers =
         , Url.map SeriesSongs (s "categories" </> string </> s "series" </> string </> s "songs")
         , Url.map CategoryListing (s "categories")
         , Url.map SeriesListing (s "categories" </> string </> s "series")
+        , Url.map FileSearch (s "files")
         , Url.map Settings (s "settings")
         ]
 

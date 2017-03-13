@@ -7,6 +7,14 @@ import Http
 import Material
 
 
+type alias ElementId =
+    String
+
+
+type alias FileMetadata =
+    { result : Maybe Model.TitleAndArtist, total : Int }
+
+
 type Msg
     = QueryInput String
     | ChangeSearchType Route.SearchType
@@ -17,4 +25,6 @@ type Msg
     | SelectTab Int
     | ShowSong (Maybe Model.Song)
     | UpdateSettings Model.Settings
+    | SelectFile ElementId
+    | ReceiveFileMetadata FileMetadata
     | Mdl (Material.Msg Msg)

@@ -1,17 +1,16 @@
-module ClubDarn.View exposing (..)
+port module ClubDarn.View exposing (..)
 
-import Html exposing (..)
-import Html.Events exposing (..)
-import Html.Attributes exposing (..)
-import ClubDarn.Msg as Msg exposing (Msg)
 import ClubDarn.Model as Model exposing (Model)
+import ClubDarn.Msg as Msg exposing (Msg)
 import ClubDarn.Route as Route exposing (Route)
-import ClubDarn.Util as Util
 import ClubDarn.Update exposing (defaultSeriesCategoryId)
-import RemoteData exposing (RemoteData, WebData)
-import Navigation
-import Http
+import ClubDarn.Util as Util
 import Dict exposing (Dict)
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import Html.Events exposing (..)
+import Http
+import Json.Decode
 import Material.Badge as Badge
 import Material.Button as Button
 import Material.Card as Card
@@ -22,11 +21,14 @@ import Material.Icon as Icon
 import Material.Layout as Layout
 import Material.List as MdlList
 import Material.Options as Options
+import Material.Progress as Progress
 import Material.Spinner as Spinner
 import Material.Tabs as Tabs
 import Material.Textfield as Textfield
 import Material.Toggles as Toggles
 import Material.Typography as Typography
+import Navigation
+import RemoteData exposing (RemoteData, WebData)
 
 
 view : Model -> Html Msg
@@ -41,7 +43,7 @@ view model =
         { header = []
         , drawer = []
         , tabs =
-            ( [ "search", "format_list_numbered", "settings" ]
+            ( [ "search", "format_list_numbered", "sd_storage", "settings" ]
                 |> List.map (flip Icon.view [ Options.cs "darn-tab-icon" ])
             , []
             )
@@ -68,6 +70,9 @@ mainContent model =
 
         Route.MainSearch ->
             [ renderSearchBox model ]
+
+        Route.FileSearch ->
+            renderFileSearch model
 
         Route.Settings ->
             [ centeredColumn [ itemsHeader "Settings", renderSettings model ] ]
@@ -530,3 +535,45 @@ renderSettings model =
                 [ text "Machine" ]
                 [ MdlList.ul [] machineToggles ]
             ]
+
+
+renderFileSearch : Model -> List (Html Msg)
+renderFileSearch model =
+    let
+        inputId =
+            "darn-js-file-input"
+
+        getProgress : Model.FileSearchState -> Int
+        getProgress state =
+            state.progress * 100 // state.total
+
+        loader : Html Msg
+        loader =
+            model.fileSearchState
+                |> Util.maybeFold (getProgress >> toFloat) 0.0
+                |> Progress.progress
+    in
+        [ input
+            [ id inputId
+            , style [ ( "display", "none" ) ]
+            , type_ "file"
+            , accept "audio/*"
+            , multiple True
+            , on "change" <| Json.Decode.succeed <| Msg.SelectFile inputId
+            ]
+            []
+        , div [ class "flex-container flex-container--center" ]
+            [ div [ class "darn-file-select" ]
+                [ div [ class "darn-file-select--description" ]
+                    [ text "Search for songs using the title/artist metadata from song files on your device "
+                    , br [] []
+                    , text "(Only the titles and artist names will be sent to the server, not the entire file)"
+                    ]
+                , label
+                    [ for inputId, class "darn-file-select__button mdl-button mdl-button--raised" ]
+                    [ text "Select files" ]
+                ]
+            ]
+        , loader
+        , renderItems model
+        ]

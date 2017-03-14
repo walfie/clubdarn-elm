@@ -19,7 +19,12 @@ var ClubDarn = (function() {
   var settings = null;
   try { settings = JSON.parse(settingsJson) } catch (e) {};
 
-  var app = Elm.ClubDarn.Main.fullscreen(settings);
+  var flags = {
+    apiBaseUrl: 'http://localhost:8000/api',
+    settings: settings
+  };
+
+  var app = Elm.ClubDarn.Main.fullscreen(flags);
 
   app.ports.saveSettings.subscribe(function(settings) {
     localStorage.setItem(settingsKey, JSON.stringify(settings));

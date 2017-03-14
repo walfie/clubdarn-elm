@@ -16,14 +16,6 @@ import RemoteData
 import Task
 
 
-apiBaseUrl =
-    "http://localhost:8000/api"
-
-
-
--- TODO: Put in some config
-
-
 defaultSeriesCategoryId =
     "050100"
 
@@ -232,7 +224,7 @@ handleSearch model path queryParams itemDecoder itemType =
             apiQuery model queryParams
 
         url =
-            apiBaseUrl ++ path ++ (QueryString.render query)
+            model.apiBaseUrl ++ path ++ (QueryString.render query)
 
         ( updatedCache, cachedPage ) =
             LruCache.get url model.responseCache
@@ -290,7 +282,7 @@ handleFileMetadata model metadata =
                     apiQuery model []
 
                 url =
-                    apiBaseUrl ++ "/songs/lookup" ++ (QueryString.render query)
+                    model.apiBaseUrl ++ "/songs/lookup" ++ (QueryString.render query)
 
                 decoder =
                     Model.paginatedDecoder Model.songDecoder

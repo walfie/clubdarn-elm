@@ -17,6 +17,7 @@ type alias Model =
     , activeSong : Maybe Song
     , responseCache : LruCache String PaginatedItems
     , fileSearchState : Maybe FileSearchState
+    , apiBaseUrl : String
     , settings : Settings
     , mdl : Material.Model
     }
@@ -63,6 +64,12 @@ titleAndArtistEncoder data =
         [ ( "title", Encode.string data.title )
         , ( "artist", Encode.string data.artist )
         ]
+
+
+type alias Flags =
+    { apiBaseUrl : String
+    , settings : Maybe Settings
+    }
 
 
 type alias Settings =

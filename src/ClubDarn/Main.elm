@@ -18,8 +18,8 @@ defaultSettings =
     { serialNo = Nothing }
 
 
-initialModel : Maybe Model.Settings -> Location -> Model
-initialModel maybeSettings location =
+initialModel : Model.Flags -> Location -> Model
+initialModel flags location =
     { query = ""
     , searchType = Route.SongSearch
     , items = RemoteData.NotAsked
@@ -27,16 +27,17 @@ initialModel maybeSettings location =
     , activeSong = Nothing
     , fileSearchState = Nothing
     , responseCache = LruCache.empty 50
-    , settings = Maybe.withDefault defaultSettings maybeSettings
+    , apiBaseUrl = flags.apiBaseUrl
+    , settings = Maybe.withDefault defaultSettings flags.settings
     , mdl = Material.model
     }
 
 
-init : Maybe Model.Settings -> Location -> ( Model, Cmd Msg )
-init maybeSettings location =
+init : Model.Flags -> Location -> ( Model, Cmd Msg )
+init flags location =
     let
         ( updatedModel, cmd ) =
-            initialModel maybeSettings location
+            initialModel flags location
                 |> update (Msg.LocationChange location)
     in
         updatedModel ! [ cmd, Material.init Msg.Mdl ]
@@ -50,7 +51,7 @@ subscriptions model =
         ]
 
 
-main : Program (Maybe Model.Settings) Model Msg
+main : Program Model.Flags Model Msg
 main =
     Navigation.programWithFlags Msg.LocationChange
         { init = init

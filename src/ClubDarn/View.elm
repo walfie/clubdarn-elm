@@ -308,20 +308,15 @@ centeredColumn contents =
         [ Grid.cell [ Grid.size Grid.All 4 ] contents ]
 
 
-renderItem : List (Attribute Msg) -> List (Html Msg) -> Html Msg
-renderItem attributes innerContents =
-    a
-        (class "darn-search-item__link" :: attributes)
-        [ Options.div
-            [ Elevation.e4
-            , Options.cs "darn-search-item__container"
-            ]
-            innerContents
-        ]
+renderItemContainer : List (Html Msg) -> List (Html Msg) -> Html Msg
+renderItemContainer topRow bottomRow =
+    Options.div
+        [ Elevation.e4, Options.cs "darn-search-item__container" ]
+        ([ div [ class "darn-search-item__top-row" ] topRow ] ++ bottomRow)
 
 
-renderSongItem : Model.Song -> List (Html Msg) -> Html Msg
-renderSongItem song innerContents =
+renderSongItem : Model.Song -> List (Html Msg) -> List (Html Msg) -> Html Msg
+renderSongItem song topRow bottomRow =
     Options.div
         [ Options.cs "darn-search-item__link"
         , Options.onClick (Msg.ShowSong (Just song))
@@ -330,17 +325,16 @@ renderSongItem song innerContents =
           else
             Options.nop
         ]
-        [ Options.div
-            [ Elevation.e4
-            , Options.cs "darn-search-item__container"
-            ]
-            innerContents
+        [ renderItemContainer topRow bottomRow ]
+
+
+renderRouteItem : Route -> List (Html Msg) -> List (Html Msg) -> Html Msg
+renderRouteItem onClickRoute topRow bottomRow =
+    a
+        [ class "darn-search-item__link"
+        , onClickRoute |> Route.reverse |> href
         ]
-
-
-renderRouteItem : Route -> List (Html Msg) -> Html Msg
-renderRouteItem onClickRoute =
-    renderItem [ onClickRoute |> Route.reverse |> href ]
+        [ renderItemContainer topRow bottomRow ]
 
 
 renderSongPage : Route -> Model.Paginated Model.Song -> Html Msg
@@ -386,9 +380,16 @@ renderSongPage route page =
             page.items |> List.map renderSong |> mainGrid
 
 
+titleWithSongId : Bool -> Model.Song -> List (Html Msg)
+titleWithSongId isLarge song =
+    [ itemTitle isLarge song.title
+    , div [ class "darn-search-item__song-id" ] [ displaySongId song.id |> text ]
+    ]
+
+
 renderArtistSong : Model.Song -> Html Msg
 renderArtistSong song =
-    renderSongItem song [ itemTitle True song.title ]
+    renderSongItem song (titleWithSongId True song) []
 
 
 renderRecentSongs : Model.Paginated Model.Song -> List (Html Msg)
@@ -415,31 +416,28 @@ renderRecentSongs page =
 renderCategorySong : Model.Song -> Html Msg
 renderCategorySong song =
     renderSongItem song
-        [ itemTitle False song.title
-        , song.series |> Maybe.withDefault song.artist.name |> itemSubtitle
-        ]
+        (titleWithSongId False song)
+        [ song.series |> Maybe.withDefault song.artist.name |> itemSubtitle ]
 
 
 itemTitle : Bool -> String -> Html Msg
 itemTitle isLarge string =
     let
-        suffix =
-            if isLarge then
-                "--large"
-            else
-                ""
-
         itemClass =
-            "darn-search-item__title" ++ suffix
+            "darn-search-item__title"
+
+        itemClasses =
+            if isLarge then
+                itemClass ++ " " ++ (itemClass ++ "--large")
+            else
+                itemClass
     in
-        div [ class itemClass ] [ text string ]
+        div [ class itemClasses ] [ text string ]
 
 
 itemSubtitle : String -> Html Msg
 itemSubtitle string =
-    Options.div
-        [ Options.cs "darn-search-item__subtitle" ]
-        [ text string ]
+    div [ class "darn-search-item__subtitle" ] [ text string ]
 
 
 itemsHeader : String -> Html Msg
@@ -457,14 +455,13 @@ itemIcon icon =
 renderSong : Model.Song -> Html Msg
 renderSong song =
     renderSongItem song
-        [ itemTitle False song.title
-        , itemSubtitle song.artist.name
-        ]
+        (titleWithSongId False song)
+        [ itemSubtitle song.artist.name ]
 
 
 renderArtist : Model.Artist -> Html Msg
 renderArtist artist =
-    renderRouteItem (Route.ArtistSongs artist.id) [ itemTitle True artist.name ]
+    renderRouteItem (Route.ArtistSongs artist.id) [ itemTitle True artist.name ] []
 
 
 renderSeries : String -> Model.Series -> Html Msg
@@ -472,6 +469,7 @@ renderSeries categoryId series =
     renderRouteItem
         (Route.SeriesSongs categoryId series.title)
         [ itemTitle True series.title ]
+        []
 
 
 renderCategoryGroup : Model.CategoryGroup -> Html Msg
@@ -497,9 +495,8 @@ renderCategory categoryType category =
                     Route.SeriesListing category.id
     in
         renderRouteItem route
-            [ itemTitle False category.description.en
-            , itemSubtitle category.description.ja
-            ]
+            [ itemTitle False category.description.en ]
+            [ itemSubtitle category.description.ja ]
 
 
 renderSettings : Model -> Html Msg

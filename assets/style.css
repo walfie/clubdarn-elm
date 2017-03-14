@@ -144,19 +144,31 @@
 
 .darn-search-item__container {
   padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 35px;
+}
+
+.darn-search-item__top-row {
+  display: flex;
+  align-items: center;
 }
 
 .darn-search-item__title {
   font-size: 1.2em;
   color: #000;
   padding-bottom: 3px;
+  flex: 1;
 }
 
 .darn-search-item__title--large {
   font-size: 1.3em;
-  color: #000;
-  padding: 4px 4px;
-  min-height: 30px;
+  padding: 4px;
+}
+
+.darn-search-item__song-id {
+  margin-left: 1em;
 }
 
 .darn-search-item__subtitle {

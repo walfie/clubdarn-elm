@@ -97,7 +97,15 @@ update msg model =
                             other
 
                 newModel =
-                    { model | items = newItems }
+                    if model.route == Route.FileSearch then
+                        let
+                            updateState : Model.FileSearchState -> Model.FileSearchState
+                            updateState state =
+                                { state | items = newItems }
+                        in
+                            { model | fileSearchState = model.fileSearchState |> Maybe.map updateState }
+                    else
+                        { model | items = newItems }
             in
                 case newItems of
                     RemoteData.Success page ->
@@ -260,15 +268,17 @@ handleFileMetadata model metadata =
         newState =
             case model.fileSearchState of
                 Nothing ->
-                    { items = newItem
+                    { metadata = newItem
                     , progress = 1
                     , total = metadata.total
+                    , items = RemoteData.NotAsked
                     }
 
                 Just state ->
-                    { items = newItem ++ state.items
-                    , progress = state.progress + 1
-                    , total = metadata.total
+                    { state
+                        | metadata = newItem ++ state.metadata
+                        , progress = state.progress + 1
+                        , total = metadata.total
                     }
 
         newModel =
@@ -287,7 +297,7 @@ handleFileMetadata model metadata =
                         |> Decode.map Model.PaginatedSongs
 
                 body =
-                    newState.items
+                    newState.metadata
                         |> List.map Model.titleAndArtistEncoder
                         |> Encode.list
                         |> Http.jsonBody
@@ -295,7 +305,10 @@ handleFileMetadata model metadata =
                 cmd =
                     Http.post url body decoder
                         |> Http.send (ApiResult url)
+
+                loadingState =
+                    { newState | items = RemoteData.Loading }
             in
-                { newModel | items = RemoteData.Loading } ! [ cmd ]
+                { model | fileSearchState = Just loadingState } ! [ cmd ]
         else
-            newModel ! []
+            { model | fileSearchState = Just newState } ! []

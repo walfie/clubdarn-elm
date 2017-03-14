@@ -63,10 +63,10 @@ mainContent : Model -> List (Html Msg)
 mainContent model =
     case model.route of
         Route.CategoryListing ->
-            [ renderItems model ]
+            [ renderItems model model.items ]
 
         Route.CategorySongs _ ->
-            [ renderItems model ]
+            [ renderItems model model.items ]
 
         Route.MainSearch ->
             [ renderSearchBox model ]
@@ -78,7 +78,7 @@ mainContent model =
             [ centeredColumn [ itemsHeader "Settings", renderSettings model ] ]
 
         _ ->
-            [ renderSearchBox model, renderItems model ]
+            [ renderSearchBox model, renderItems model model.items ]
 
 
 renderSongDialogOverlay : Model -> Html Msg
@@ -238,9 +238,9 @@ searchBox model =
         ]
 
 
-renderItems : Model -> Html Msg
-renderItems model =
-    case model.items of
+renderItems : Model -> WebData Model.PaginatedItems -> Html Msg
+renderItems model items =
+    case items of
         RemoteData.NotAsked ->
             text ""
 
@@ -575,5 +575,5 @@ renderFileSearch model =
                 ]
             ]
         , loader
-        , renderItems model
+        , model.fileSearchState |> Util.maybeFold (.items >> renderItems model) (text "")
         ]

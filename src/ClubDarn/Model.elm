@@ -23,9 +23,10 @@ type alias Model =
 
 
 type alias FileSearchState =
-    { items : List TitleAndArtist
+    { metadata : List TitleAndArtist
     , progress : Int
     , total : Int
+    , items : WebData PaginatedItems
     }
 
 

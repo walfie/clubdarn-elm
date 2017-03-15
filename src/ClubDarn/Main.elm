@@ -26,6 +26,7 @@ initialModel flags location =
     , route = Route.parseLocation location
     , activeSong = Nothing
     , fileSearchState = Nothing
+    , searchTabTarget = Route.MainSearch
     , responseCache = LruCache.empty 50
     , apiBaseUrl = flags.apiBaseUrl
     , settings = Maybe.withDefault defaultSettings flags.settings

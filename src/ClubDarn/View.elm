@@ -38,7 +38,12 @@ view model =
         [ Layout.fixedHeader
         , Layout.fixedTabs
         , Layout.onSelectTab Msg.SelectTab
-        , Layout.selectedTab (Route.activeTab model.route)
+        , Layout.selectedTab
+            (if model.route == model.searchTabTarget then
+                Route.tabs |> .mainSearch
+             else
+                Route.activeTab model.route
+            )
         ]
         { header = []
         , drawer = []

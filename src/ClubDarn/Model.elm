@@ -16,6 +16,7 @@ type alias Model =
     , route : Route
     , activeSong : Maybe Song
     , responseCache : LruCache String PaginatedItems
+    , searchTabTarget : Route
     , fileSearchState : Maybe FileSearchState
     , apiBaseUrl : String
     , settings : Settings

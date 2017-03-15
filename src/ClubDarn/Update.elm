@@ -41,10 +41,16 @@ update msg model =
         SelectTab tabNumber ->
             let
                 -- TODO: Add route for "not found"
-                newRoute =
+                matchingRoute =
                     Dict.get tabNumber tabDict |> Maybe.withDefault Route.MainSearch
+
+                route =
+                    if matchingRoute == Route.MainSearch then
+                        model.searchTabTarget
+                    else
+                        matchingRoute
             in
-                model ! [ Route.reverse newRoute |> Navigation.newUrl ]
+                model ! [ Route.reverse route |> Navigation.newUrl ]
 
         LocationChange location ->
             let
@@ -143,6 +149,7 @@ handleLocationChange model =
                 []
                 Model.categoryGroupDecoder
                 Model.PaginatedCategoryGroups
+                False
 
         Route.SeriesListing categoryId ->
             handleSearch model
@@ -150,6 +157,7 @@ handleLocationChange model =
                 []
                 Model.seriesDecoder
                 Model.PaginatedSeries
+                False
 
         Route.SearchResults (Route.SongSearch) (Just query) ->
             handleSearch model
@@ -157,6 +165,7 @@ handleLocationChange model =
                 [ ( "title", query ) ]
                 Model.songDecoder
                 Model.PaginatedSongs
+                True
 
         Route.SearchResults (Route.ArtistSearch) (Just query) ->
             handleSearch model
@@ -164,6 +173,7 @@ handleLocationChange model =
                 [ ( "name", query ) ]
                 Model.artistDecoder
                 Model.PaginatedArtists
+                True
 
         Route.SearchResults (Route.SeriesSearch) (Just query) ->
             handleSearch model
@@ -171,6 +181,7 @@ handleLocationChange model =
                 [ ( "title", query ) ]
                 Model.seriesDecoder
                 Model.PaginatedSeries
+                True
 
         Route.SongInfo songId ->
             handleSearch model
@@ -178,6 +189,7 @@ handleLocationChange model =
                 []
                 Model.songDecoder
                 Model.PaginatedSongs
+                True
 
         Route.ArtistSongs artistId ->
             handleSearch model
@@ -185,6 +197,7 @@ handleLocationChange model =
                 []
                 Model.songDecoder
                 Model.PaginatedSongs
+                True
 
         Route.CategorySongs categoryId ->
             handleSearch model
@@ -192,6 +205,7 @@ handleLocationChange model =
                 []
                 Model.songDecoder
                 Model.PaginatedSongs
+                False
 
         Route.SeriesSongs categoryId seriesTitle ->
             handleSearch model
@@ -199,6 +213,7 @@ handleLocationChange model =
                 []
                 Model.songDecoder
                 Model.PaginatedSongs
+                True
 
         Route.SimilarSongs songId ->
             handleSearch model
@@ -206,6 +221,7 @@ handleLocationChange model =
                 []
                 Model.songDecoder
                 Model.PaginatedSongs
+                True
 
         _ ->
             model ! []
@@ -217,8 +233,9 @@ handleSearch :
     -> List ( String, String )
     -> Decoder t
     -> (Model.Paginated t -> Model.PaginatedItems)
+    -> Bool
     -> ( Model, Cmd Msg )
-handleSearch model path queryParams itemDecoder itemType =
+handleSearch model path queryParams itemDecoder itemType setSearchTabTarget =
     let
         query =
             apiQuery model queryParams
@@ -228,10 +245,16 @@ handleSearch model path queryParams itemDecoder itemType =
 
         ( updatedCache, cachedPage ) =
             LruCache.get url model.responseCache
+
+        updatedModel =
+            if setSearchTabTarget then
+                { model | searchTabTarget = model.route }
+            else
+                model
     in
         case cachedPage of
             Just page ->
-                ( { model
+                ( { updatedModel
                     | items = RemoteData.Success page
                     , responseCache = updatedCache
                   }
@@ -246,7 +269,7 @@ handleSearch model path queryParams itemDecoder itemType =
                     request =
                         Http.get url pageDecoder
                 in
-                    ( { model | items = RemoteData.Loading }
+                    ( { updatedModel | items = RemoteData.Loading }
                     , Http.send (ApiResult url) request
                     )
 

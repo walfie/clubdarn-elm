@@ -80,7 +80,7 @@ reverse route =
                 "categories/" ++ categoryId ++ "/songs"
 
             SeriesSongs categoryId seriesTitle ->
-                "categories/" ++ categoryId ++ "/series/" ++ (Http.encodeUri seriesTitle) ++ "/songs"
+                "categories/" ++ categoryId ++ "/series/" ++ Http.encodeUri seriesTitle ++ "/songs"
 
             CategoryListing ->
                 "categories"
@@ -144,6 +144,13 @@ tabDict =
         ]
 
 
+encodedString : Url.Parser (String -> a) a
+encodedString =
+    Url.custom "ENCODED_STRING" <|
+        \s ->
+            Result.fromMaybe ("Invalid string " ++ s) (Http.decodeUri s)
+
+
 matchers : Url.Parser (Route -> a) a
 matchers =
     Url.oneOf
@@ -156,7 +163,7 @@ matchers =
         , Url.map SimilarSongs (s "songs" </> int </> s "similar")
         , Url.map ArtistSongs (s "artists" </> int </> s "songs")
         , Url.map CategorySongs (s "categories" </> string </> s "songs")
-        , Url.map SeriesSongs (s "categories" </> string </> s "series" </> string </> s "songs")
+        , Url.map SeriesSongs (s "categories" </> string </> s "series" </> encodedString </> s "songs")
         , Url.map CategoryListing (s "categories")
         , Url.map SeriesListing (s "categories" </> string </> s "series")
         , Url.map FileSearch (s "files")

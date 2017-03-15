@@ -28,3 +28,4 @@ type Msg
     | SelectFile ElementId
     | ReceiveFileMetadata FileMetadata
     | Mdl (Material.Msg Msg)
+    | Nop

@@ -5,11 +5,13 @@ import ClubDarn.Msg as Msg exposing (Msg(..))
 import ClubDarn.Route as Route exposing (Route, tabs, tabDict)
 import ClubDarn.Util as Util
 import Dict
+import Dom.Scroll
 import Http
 import Json.Decode as Decode exposing (Decoder)
 import Json.Encode as Encode
 import LruCache exposing (LruCache)
 import Material
+import Material.Layout as Layout
 import Navigation
 import QueryString exposing (QueryString)
 import RemoteData
@@ -32,6 +34,9 @@ port fileMetadata : (Msg.FileMetadata -> msg) -> Sub msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        Nop ->
+            model ! []
+
         Mdl m ->
             Material.update Mdl m model
 
@@ -50,7 +55,10 @@ update msg model =
                     else
                         matchingRoute
             in
-                model ! [ Route.reverse route |> Navigation.newUrl ]
+                model
+                    ! [ Navigation.newUrl (Route.reverse route)
+                      , Task.attempt (always Msg.Nop) (Dom.Scroll.toTop Layout.mainId)
+                      ]
 
         LocationChange location ->
             let

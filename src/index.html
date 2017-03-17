@@ -7,121 +7,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="apple-touch-icon" sizes="180x180" href="static/icons/apple-touch-icon.png">
-<link rel="icon" type="image/png" href="static/icons/favicon-32x32.png" sizes="32x32">
-<link rel="icon" type="image/png" href="static/icons/favicon-16x16.png" sizes="16x16">
-<link rel="manifest" href="static/icons/manifest.json">
-<link rel="mask-icon" href="static/icons/safari-pinned-tab.svg" color="#009688">
-<link rel="shortcut icon" href="static/icons/favicon.ico">
-<meta name="msapplication-config" content="static/icons/browserconfig.xml">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="assets/icons/favicon-32x32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="assets/icons/favicon-16x16.png" sizes="16x16">
+<link rel="manifest" href="assets/icons/manifest.json">
+<link rel="mask-icon" href="assets/icons/safari-pinned-tab.svg" color="#009688">
+<link rel="shortcut icon" href="assets/icons/favicon.ico">
+<meta name="msapplication-config" content="assets/icons/browserconfig.xml">
 <meta name="theme-color" content="#009688">
 
 </head>
-<body style="visibility: hidden;">
 
-<script>
-var apiBaseUrl = 'http://localhost:8000/api';
-var jsmediatagsUrl = 'https://rawgit.com/aadsm/jsmediatags/master/dist/jsmediatags.min.js';
+<body style="visibility: hidden;"></body>
 
-var d = document;
-function loadScript(url, cb) {
-  var s = d.createElement('script');
-  s.async = 1;
-  s.onload = cb;
-  s.src = url;
-  d.body.appendChild(s);
-};
-
-function loadCss(url, cb) {
-  var l = d.createElement('link');
-  l.onload = function() { l.media = 'all'; cb(); };
-  l.rel = 'stylesheet';
-  l.media = 'none';
-  l.href = url;
-  d.body.appendChild(l);
-
-  return l;
-};
-
-function multiLoadCss(urls, cb) {
-  var nLoaded = 0;
-  urls.forEach(function(url) {
-    loadCss(url, function() { if (++nLoaded == urls.length) cb(); });
-  });
-}
-
-multiLoadCss([
-  'https://fonts.googleapis.com/icon?family=Material+Icons',
-  'https://code.getmdl.io/1.3.0/material.teal-red.min.css',
-  'styles/style.css'
-], function() { document.body.style.visibility = 'visible'; });
-
-loadScript('../target/clubdarn.js', function() {
-  var settingsKey = 'settings';
-
-  // Initialize settings from localStorage
-  var settingsJson = localStorage.getItem(settingsKey);
-  var settings = null;
-  try { settings = JSON.parse(settingsJson) } catch (e) {};
-
-  // Start the app
-  var flags = { apiBaseUrl: apiBaseUrl, settings: settings };
-  var app = Elm.ClubDarn.Main.fullscreen(flags);
-
-  // Update localStorage when we receive new settings
-  app.ports.saveSettings.subscribe(function(settings) {
-    localStorage.setItem(settingsKey, JSON.stringify(settings));
-  });
-
-  // Only load jsmediatags script if the user selects files
-  app.ports.selectFile.subscribe(function(elementId) {
-    function handle() {
-      handleFileSelection(window.jsmediatags, elementId);
-    }
-
-    window.jsmediatags ? handle() : loadScript(jsmediatagsUrl, handle);
-  });
-
-  // Use jsmediatags to read the titles/artists from the ID3 tags
-  function handleFileSelection(jsmediatags, elementId) {
-    var input = document.getElementById(elementId);
-    var totalItems = input.files.length;
-
-    function handledFile(maybeMetadata) {
-      app.ports.fileMetadata.send({
-        result: maybeMetadata,
-        total: totalItems
-      });
-    }
-
-    for (var i = 0; i < totalItems; i++) {
-      var file = input.files[i];
-      jsmediatags.read(file, {
-        onSuccess: function(result) {
-          var tags = result.tags || {};
-          var metadata = {
-            title: tags.title || '',
-            artist: tags.artist || ''
-          };
-
-          handledFile(metadata);
-        },
-        onError: function(e) {
-          console.error(e);
-          handledFile(null);
-        }
-      });
-    }
-
-    if (totalItems <= 0) {
-      totalItems = 1;
-      handledFile(null);
-    }
-  }
-
-  return app;
-});
-</script>
-
-</body>
 </html>

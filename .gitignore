@@ -1,5 +1,5 @@
 elm-stuff/
 target/
-
-main.js
+dist/
+node_modules/
 

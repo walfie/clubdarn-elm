@@ -4,7 +4,8 @@ var Elm = require('../elm/ClubDarn/Main.elm');
 var Ports = require('./ports')
 var Util = require('./util');
 
-var apiBaseUrl = 'http://localhost:8000/api';
+// TODO: Make this configurable
+var apiBaseUrl = 'http://clubdarn.aikats.us/api';
 
 Util.loadMultipleCss([
   'https://fonts.googleapis.com/icon?family=Material+Icons',
@@ -12,8 +13,6 @@ Util.loadMultipleCss([
 ], function() { document.body.style.visibility = 'visible'; });
 
 var ClubDarn = (function() {
-  var settingsKey = 'settings';
-
   // Initialize settings from localStorage
   var settingsJson = localStorage.getItem(settingsKey);
   var settings = null;

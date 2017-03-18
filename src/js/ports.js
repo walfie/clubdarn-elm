@@ -6,7 +6,7 @@ module.exports = {
 };
 
 function saveSettings(settings) {
-  window.localStorage.setItem(settingsKey, JSON.stringify(settings));
+  window.localStorage.setItem('settings', JSON.stringify(settings));
 }
 
 var jsmediatagsUrl = 'https://rawgit.com/aadsm/jsmediatags/master/dist/jsmediatags.min.js';

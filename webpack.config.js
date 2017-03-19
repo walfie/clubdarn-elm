@@ -44,7 +44,10 @@ module.exports = {
     new ExtractTextPlugin("assets/[name].[chunkhash:8].css"),
     new HtmlWebpackPlugin({
       inject: true,
-      template: paths.template
+      template: paths.template,
+      minify: {
+        minifyJS: true
+      }
     }),
     new CopyWebpackPlugin([
       { from: 'src/static', to: path.resolve(paths.dist, 'assets') }

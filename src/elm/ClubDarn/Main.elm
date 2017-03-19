@@ -5,9 +5,7 @@ import ClubDarn.Model as Model exposing (Model)
 import ClubDarn.Msg as Msg exposing (Msg)
 import ClubDarn.Update as Update exposing (update, saveSettings)
 import ClubDarn.View exposing (view)
-import Html exposing (..)
 import Navigation exposing (Location)
-import UrlParser exposing (..)
 import RemoteData
 import LruCache exposing (LruCache)
 import Material

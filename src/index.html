@@ -18,6 +18,34 @@
 
 </head>
 
-<body style="visibility: hidden;"></body>
+<body style="visibility: hidden;">
+<script>
+(function() {
+  var d = document;
+  function loadCss(url, cb) {
+    var l = d.createElement('link');
+    l.onload = function() { l.media = 'all'; cb(); };
+    l.rel = 'stylesheet';
+    l.media = 'none';
+    l.href = url;
+    d.body.appendChild(l);
+
+    return l;
+  };
+
+  function loadMultipleCss(urls, cb) {
+    var nLoaded = 0;
+    urls.forEach(function(url) {
+      loadCss(url, function() { if (++nLoaded == urls.length) cb(); });
+    });
+  }
+
+  loadMultipleCss([
+    'https://fonts.googleapis.com/icon?family=Material+Icons',
+    'https://code.getmdl.io/1.3.0/material.teal-red.min.css'
+  ], function() { document.body.style.visibility = 'visible'; });
+}());
+</script>
+</body>
 
 </html>

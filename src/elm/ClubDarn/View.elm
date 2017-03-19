@@ -11,9 +11,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
 import Json.Decode
-import Material.Badge as Badge
 import Material.Button as Button
-import Material.Card as Card
 import Material.Color as Color
 import Material.Elevation as Elevation
 import Material.Grid as Grid
@@ -23,11 +21,8 @@ import Material.List as MdlList
 import Material.Options as Options
 import Material.Progress as Progress
 import Material.Spinner as Spinner
-import Material.Tabs as Tabs
 import Material.Textfield as Textfield
 import Material.Toggles as Toggles
-import Material.Typography as Typography
-import Navigation
 import RemoteData exposing (RemoteData, WebData)
 
 
@@ -214,6 +209,7 @@ searchInput model =
         model.mdl
         [ Textfield.label "Search"
         , Textfield.value model.query
+        , Options.attribute <| type_ "search"
         , Options.onInput Msg.QueryInput
         , Options.cs "darn-search-box__input"
         ]

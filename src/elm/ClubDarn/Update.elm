@@ -5,6 +5,7 @@ import ClubDarn.Msg as Msg exposing (Msg(..))
 import ClubDarn.Route as Route exposing (Route, tabs, tabDict)
 import ClubDarn.Util as Util
 import Dict
+import Dom
 import Dom.Scroll
 import Http
 import Json.Decode as Decode exposing (Decoder)
@@ -87,7 +88,7 @@ update msg model =
                 newRoute =
                     Route.SearchResults model.searchType query
             in
-                model ! [ newRoute |> Route.reverse |> Navigation.newUrl ]
+                model ! [ Navigation.newUrl <| Route.reverse newRoute ]
 
         ApiResult url result ->
             let

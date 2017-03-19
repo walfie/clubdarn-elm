@@ -7,14 +7,9 @@ var Util = require('./util');
 // TODO: Make this configurable
 var apiBaseUrl = 'http://clubdarn.aikats.us/api';
 
-Util.loadMultipleCss([
-  'https://fonts.googleapis.com/icon?family=Material+Icons',
-  'https://code.getmdl.io/1.3.0/material.teal-red.min.css'
-], function() { document.body.style.visibility = 'visible'; });
-
 var ClubDarn = (function() {
   // Initialize settings from localStorage
-  var settingsJson = localStorage.getItem(settingsKey);
+  var settingsJson = localStorage.getItem(Ports.settingsKey);
   var settings = null;
   try { settings = JSON.parse(settingsJson) } catch (e) {};
 

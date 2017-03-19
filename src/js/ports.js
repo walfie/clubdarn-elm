@@ -1,12 +1,15 @@
 var Util = require('./util');
 
+var settingsKey = 'settings';
+
 module.exports = {
+  settingsKey: settingsKey,
   selectFile: selectFile,
   saveSettings: saveSettings
 };
 
 function saveSettings(settings) {
-  window.localStorage.setItem('settings', JSON.stringify(settings));
+  window.localStorage.setItem(settingsKey, JSON.stringify(settings));
 }
 
 var jsmediatagsUrl = 'https://rawgit.com/aadsm/jsmediatags/master/dist/jsmediatags.min.js';

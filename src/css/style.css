@@ -130,7 +130,7 @@
   content: "🎬";
   position: absolute;
   color: #fff;
-  background: #009688;
+  background: rgba(0, 150, 136, 0.4);
   top: -8px;
   right: -8px;
   font-size: 12px;
@@ -140,6 +140,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow:
+    0 4px 5px 0 rgba(0, 0, 0, 0.14),
+    0 2px 4px -1px rgba(0, 0, 0, 0.2);
 }
 
 .darn-search-item__link {

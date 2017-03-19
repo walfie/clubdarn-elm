@@ -212,6 +212,7 @@ searchInput model =
         , Options.attribute <| type_ "search"
         , Options.onInput Msg.QueryInput
         , Options.cs "darn-search-box__input"
+        , Options.id "darn-js-search-input"
         ]
         []
 

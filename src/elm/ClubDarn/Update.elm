@@ -19,6 +19,7 @@ import RemoteData
 import Task
 
 
+defaultSeriesCategoryId : String
 defaultSeriesCategoryId =
     "050100"
 
@@ -88,7 +89,10 @@ update msg model =
                 newRoute =
                     Route.SearchResults model.searchType query
             in
-                model ! [ Navigation.newUrl <| Route.reverse newRoute ]
+                model
+                    ! [ Navigation.newUrl <| Route.reverse newRoute
+                      , Task.attempt (always Msg.Nop) (Dom.blur "darn-js-search-input")
+                      ]
 
         ApiResult url result ->
             let

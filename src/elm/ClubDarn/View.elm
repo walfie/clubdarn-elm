@@ -109,14 +109,14 @@ renderSongDialog model =
                     [ Button.render Msg.Mdl
                         [ 2 ]
                         model.mdl
-                        [ Options.onClick (Msg.ShowSong Nothing) ]
+                        [ Button.ripple, Options.onClick (Msg.ShowSong Nothing) ]
                         [ text "Close" ]
                     , a
                         [ Route.reverse (Route.SimilarSongs song.id) |> href ]
                         [ Button.render Msg.Mdl
                             [ 3 ]
                             model.mdl
-                            []
+                            [ Button.ripple ]
                             [ text "Find Similar" ]
                         ]
                     ]

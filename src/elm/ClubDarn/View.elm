@@ -5,6 +5,7 @@ import ClubDarn.Msg as Msg exposing (Msg)
 import ClubDarn.Route as Route exposing (Route)
 import ClubDarn.Update exposing (defaultSeriesCategoryId)
 import ClubDarn.Util as Util
+import Debug
 import Dict exposing (Dict)
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -256,17 +257,38 @@ renderItems model items =
                 ]
 
         RemoteData.Failure e ->
-            Options.div
-                [ Options.cs "darn-center" ]
-                [ Options.div [ Options.cs "darn-center__contents" ]
-                    [ Options.div [] [ text ("Error: " ++ toString e) ]
-                    , Button.render Msg.Mdl
-                        [ 1 ]
-                        model.mdl
-                        [ Button.ripple, Button.raised, Options.onClick Msg.RetryRequest ]
-                        [ text "Retry" ]
+            let
+                _ =
+                    Debug.log "error" <| toString e
+
+                errorText =
+                    case e of
+                        Http.BadUrl _ ->
+                            "Invalid URL"
+
+                        Http.Timeout ->
+                            "Request timed out"
+
+                        Http.NetworkError ->
+                            "Network error"
+
+                        Http.BadPayload _ _ ->
+                            "Received invalid server response"
+
+                        Http.BadStatus resp ->
+                            toString resp.status.code ++ " error (" ++ resp.status.message ++ ")"
+            in
+                Options.div
+                    [ Options.cs "darn-center" ]
+                    [ Options.div [ Options.cs "darn-center__contents" ]
+                        [ Options.div [] [ text errorText ]
+                        , Button.render Msg.Mdl
+                            [ 1 ]
+                            model.mdl
+                            [ Button.ripple, Button.raised, Options.onClick Msg.RetryRequest ]
+                            [ text "Retry" ]
+                        ]
                     ]
-                ]
 
         RemoteData.Success (Model.PaginatedSongs page) ->
             renderSongPage model.route page

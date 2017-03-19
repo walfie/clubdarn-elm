@@ -15,7 +15,7 @@ var paths = {
   elmMake: path.resolve('./node_modules/.bin/elm-make')
 }
 
-var nameTemplate = 'assets/[name]' + (isProd ? '[chunkhash:8]' : '');
+var nameTemplate = 'assets/[name]' + (isProd ? '.[chunkhash:8]' : '');
 
 var plugins = [
   new ExtractTextWebpackPlugin(nameTemplate + '.css'),

@@ -155,7 +155,7 @@ renderSongDialogContents seriesCategoryId song =
             , Maybe.map (listItem "date_range" << text) song.dateAdded
             , Maybe.map (listItem "textsms" << text) song.lyrics
             , if song.hasVideo then
-                Just (listItem "movie" <| Icon.i "check")
+                Just (listItem "movie" <| text "Has music video")
               else
                 Nothing
             ]

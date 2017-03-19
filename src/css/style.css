@@ -18,6 +18,11 @@
   align-items: center;
   text-align: center;
   line-height: 2em;
+  pointer-events: none;
+}
+
+.darn-center__contents {
+  pointer-events: auto;
 }
 
 .darn-dialog {

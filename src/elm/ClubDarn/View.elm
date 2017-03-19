@@ -248,7 +248,7 @@ renderItems model items =
         RemoteData.Loading ->
             Options.div
                 [ Options.cs "darn-center" ]
-                [ Options.div [ Options.cs "darn-spinner" ]
+                [ Options.div [ Options.cs "darn-center__contents darn-spinner" ]
                     [ Spinner.spinner [ Spinner.active True ]
                     , Options.div [ Options.cs "darn-center--text" ] [ text "Loading..." ]
                     ]
@@ -257,7 +257,7 @@ renderItems model items =
         RemoteData.Failure e ->
             Options.div
                 [ Options.cs "darn-center" ]
-                [ Options.div []
+                [ Options.div [ Options.cs "darn-center__contents" ]
                     [ Options.div [] [ text ("Error: " ++ toString e) ]
                     , Button.render Msg.Mdl
                         [ 1 ]
@@ -288,7 +288,7 @@ mainGrid : List (Html Msg) -> Html Msg
 mainGrid items =
     if List.isEmpty items then
         div [ class "darn-center" ]
-            [ div []
+            [ div [ class "darn-center__contents" ]
                 [ Icon.view "sentiment_very_dissatisfied"
                     [ Icon.size48, Color.color Color.Grey Color.S500 |> Color.text ]
                 , div [] [ text "Nothing found" ]

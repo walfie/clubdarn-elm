@@ -2,7 +2,7 @@ var path = require('path');
 
 var CleanWebpackPlugin = require('clean-webpack-plugin');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
-var ExtractTextPlugin = require("extract-text-webpack-plugin");
+var ExtractTextWebpackPlugin = require("extract-text-webpack-plugin");
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var webpack = require('webpack');
 
@@ -18,9 +18,9 @@ var paths = {
 var nameTemplate = 'assets/[name]' + (isProd ? '[chunkhash:8]' : '');
 
 var plugins = [
-  new ExtractTextPlugin(nameTemplate + '.css'),
+  new ExtractTextWebpackPlugin(nameTemplate + '.css'),
   new HtmlWebpackPlugin({
-    inject: true,
+    inject: false,
     template: paths.template,
     minify: {
       minifyJS: isProd
@@ -45,7 +45,7 @@ module.exports = {
     rules: [
       {
         test: /\.css$/,
-        use: ExtractTextPlugin.extract({
+        use: ExtractTextWebpackPlugin.extract({
           use: 'css-loader?minimize=' + isProd
         })
       },

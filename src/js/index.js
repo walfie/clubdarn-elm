@@ -5,7 +5,7 @@ var Ports = require('./ports')
 var Util = require('./util');
 
 // TODO: Make this configurable
-var apiBaseUrl = 'http://clubdarn.aikats.us/api';
+var apiBaseUrl = 'https://clubdarn.aikats.us/api';
 
 var ClubDarn = (function() {
   // Initialize settings from localStorage
